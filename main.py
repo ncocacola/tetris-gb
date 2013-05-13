@@ -18,20 +18,26 @@ RED   = (255,   0,   0)
 
 # Create window
 screen = pygame.display.set_mode(W_SIZE)
+pygame.display.set_caption("Tetris")
+
+# Create clock
+clock = pygame.time.Clock()
 
 # Loop until quit
-running = 1
-while running:
-    event = pygame.event.poll()
-    # Close the window
-    if event.type == pygame.QUIT:
-        running = 0
-    # Black background
+while True:
+    # Lock the game at 50fps
+    clock.tick(50)
+
+    # Process events
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            sys.exit()
+
+    # Clear the screen
     screen.fill(BLACK)
     
     # pygame.draw.circle(screen, WHITE, W_CENTER, 100)
     # pygame.draw.line(screen, (255, 255, 255), (639, 0), (0, 0))
 
-
-    # Update full display surface
+    # Update the screen
     pygame.display.flip()
