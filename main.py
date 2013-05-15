@@ -7,8 +7,8 @@ def drawGame(surface, grid):
     # grid[row][col]
     for row in range(len(grid)):
         for col in range(len(grid[row])):
-            if grid[row][col][0] == 1:
-                pygame.draw.rect(surface, grid[row][col][1], (CELL_W*col, CELL_H*row, CELL_W, CELL_H))
+            if grid[row][col] == 1:
+                pygame.draw.rect(surface, WHITE, (CELL_W*col, CELL_H*row, CELL_W, CELL_H))
                 # print "(" + str(row) + ", " + str(col) + ")"
 
 def moveLeft(piece):
@@ -32,7 +32,7 @@ def moveDown(piece):
             if piece[row][col] == 1:
                 foo[row+1][col] = 1
     return foo
-    
+
 def printMatrix(matrix):
     for row in range(len(matrix)):
         print matrix[row]
