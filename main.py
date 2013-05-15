@@ -1,6 +1,16 @@
 import sys
 import pygame
 from pygame.locals import *
+from numpy import matrix
+
+
+def drawGame(surface, grid):
+    # grid[row][col]
+    for row in range(len(grid)):
+        for col in range(len(grid[row])):
+            if grid[row][col][0] == 1:
+                pygame.draw.rect(surface, grid[row][col][1], (CELL_W*col, CELL_H*row, CELL_W, CELL_H))
+                # print "(" + str(row) + ", " + str(col) + ")"
 
 # TODO Abstract away from drawing pieces -- pieces should be matrices?
 
@@ -63,6 +73,16 @@ clock = pygame.time.Clock()
 # box_dir_x = 2
 # box_dir_y = 1
 
+
+
+# print range(len(grid))
+# print range(len(grid[0]))
+# for row in range(len(grid)):
+#     for col in range(len(grid[row])):
+#         print "row: " + str(row) + " col: " + str(col) + ":" + str(grid[row][col])
+# print grid[0]
+# print grid[1]
+
 # Loop until quit
 while True:
     # Lock the game at 50fps
@@ -75,6 +95,13 @@ while True:
 
     # Clear the screen
     screen.fill(BLACK)
+
+    grid = [[(0, BLACK)]*10 for i in range(20)]
+    grid[19][9] = (1, BLUE)
+    # print grid[19][9][0]
+    # print grid[19][9][1]
+
+    drawGame(screen, grid)
 
     # Check input
 
