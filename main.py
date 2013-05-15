@@ -3,6 +3,9 @@ import pygame
 from pygame.locals import *
 from numpy import matrix
 
+# TODO add index checks in your moveL/R/D functions
+# TODO generate pieces
+
 # Helper functions ------------------------------------------------------#
 def printMatrix(matrix):
     for row in range(len(matrix)):
@@ -67,6 +70,17 @@ def moveDown(piece):
             if piece[row][col] == 1:
                 foo[row+1][col] = 1
     return foo
+
+def mergeGamePiece(game, piece):
+    foo = [[0]*10 for i in range(20)]
+    for row in range(len(game)):
+        for col in range(len(game[row])):
+            if (game[row][col] == 1) and (piece[row][col] == 1):
+                return None
+            else:
+                foo[row][col] = game[row][col] + piece[row][col]
+    return foo
+
 #------------------------------------------------------------------------#
 
 # Initialise the game engine
@@ -87,11 +101,18 @@ RED   = (255,   0,   0)
 
 # Create window
 screen = pygame.display.set_mode(W_SIZE)
-# background = pygame.image.load('game.png').convert()
 pygame.display.set_caption("Tetris")
+# background = pygame.image.load('game.png').convert()
 
 # Create clock
 clock = pygame.time.Clock()
+game = [[0]*10 for i in range(20)]
+piece = [[0]*10 for i in range(20)]
+piece[1][1] = 1
+piece[2][1] = 1
+piece[3][1] = 1
+piece[4][1] = 1
+# printMatrix(piece)
 
 # Loop until quit
 while True:
@@ -106,7 +127,23 @@ while True:
     # Clear the screen
     screen.fill(BLACK)
 
+    gp = mergeGamePiece(game, piece)
+
     # Check input
+    if (event.type == KEYUP) or (event.type == KEYDOWN):
+        if event.key == pygame.K_LEFT:
+            piece = moveLeft(piece)
+        elif event.key == pygame.K_RIGHT:
+            piece = moveRight(piece)
+        elif event.key == pygame.K_DOWN:
+            piece = moveDown(piece)
+        # elif event.key == pygame.K_UP:
+        #
+
+    if not(mergeGamePiece(game, piece) is None):
+        gp = mergeGamePiece(game, piece)
+
+    drawGame(screen, gp)
 
     # Move objects...
 
