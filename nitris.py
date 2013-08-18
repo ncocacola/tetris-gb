@@ -9,8 +9,11 @@ from numpy import matrix
 # Window size
 WIDTH, HEIGHT = 200, 400
 CELL_W, CELL_H = WIDTH/10, HEIGHT/20
+ARRAY_X, ARRAY_Y = WIDTH/20, HEIGHT/20
 W_SIZE   = (WIDTH, HEIGHT)
 W_CENTER = (WIDTH/2, HEIGHT/2)
+
+MIN_X, MAX_X, MIN_Y, MAX_Y = 0, ARRAY_X-1, 0, ARRAY_Y-1
 
 # Usual colours
 BLACK = (  0,   0,   0)
@@ -21,14 +24,10 @@ RED   = (255,   0,   0)
 
 class Tetris(object):
     def __init__(self):
-        self.state = [[0]*10 for i in range(20)]    # 10 * 20 array of ints
+        self.state = [[0]*ARRAY_X for i in range(ARRAY_Y)]    # 10 * 20 array of ints
         self.level = 1
         self.lines = 0
         self.score = 0
-
-    def spawn(self):
-        newPiece = Piece()
-        return newPiece
 
     def draw(self, surface):    
         for row in range(len(self.state)):
@@ -46,11 +45,12 @@ class Tetris(object):
 
 class Piece(object):
     def __init__(self):
-        self.state = [[0]*10 for i in range(20)]
+        self.state = [[0]*ARRAY_X for i in range(ARRAY_Y)]
         self.state[1][1] = 1
         self.state[2][1] = 1
         self.state[3][1] = 1
         self.state[4][1] = 1
+        # self.state[y][x]
 
     def merge(self, Game):
         foo = [[0]*10 for i in range(20)]
@@ -64,11 +64,110 @@ class Piece(object):
                     foo[row][col] = Game.state[row][col] + self.state[row][col]
         Game.state = foo
 
+    def get_coordinates(self):
+        coordinates = []
+        for row in range(len(self.state)):
+            for col in range(len(self.state[row])):
+                if self.state[row][col] == 1:
+                    coordinates.append((row, col))
+        return sorted(coordinates, key=lambda k: k[0])
+        # Sort coordinates from left to right (x-coordinate)
+
+    def can_move(self, Game, direction):
+        # Only checks that piece stays in the game boundaries
+
+        coordinates = self.get_coordinates()
+        checklist = []
+
+        for y, x in coordinates:
+            # print "y: " + str(y) + " x: " + str(x)
+            if direction == "left" and (x-1) >= MIN_X:
+                print "left"
+                print x-1
+                checklist.append(True)
+            elif direction == "right" and (x+1) <= MAX_X:
+                print "right"
+                print x+1
+                checklist.append(True)
+            elif direction == "down" and (y+1) <= MAX_Y:
+                print "down"
+                print y+1
+                checklist.append(True)
+
+        return (len(checklist) == 4) and all(item == True for item in checklist)
+            
+
+    def move(self, direction):
+
+        coordinates = self.get_coordinates()
+
+        for y, x in coordinates:
+            if direction == "left":
+                self.state[y][x] = 0
+                self.state[y][x-1] = 1
+            elif direction == "right":
+                self.state[y][x] = 0
+                self.state[y][x+1] = 1
+            elif direction == "down":
+                self.state[y][x] = 0
+                self.state[y+1][x] = 1
+
+
+        # foo = [[0]*10 for i in range(20)]
+
+        # # Check input
+        # # if (event.type == KEYUP) or (event.type == KEYDOWN):
+        # if (event.type == KEYDOWN):
+        #     if event.key == pygame.K_LEFT:
+        #         if can_move(self, "left"):
+
+        #     elif event.key == pygame.K_RIGHT:
+        #         if can_move(self, "right"):
+        #             move(self, "right")
+        #     elif event.key == pygame.K_DOWN:
+        #         if can_move(self, "down"):
+        #             move(self, "down")
+        #     # elif event.key == pygame.K_UP:
+
+        # def moveLeft(piece):
+        #     foo = [[0]*10 for i in range(20)]
+        #     for row in range(len(piece)):
+        #         for col in range(len(piece[row])):
+        #             if piece[row][col] == 1:
+        #                 if (col-1) >= 0:
+        #                     foo[row][col-1] = 1
+        #                 else:
+        #                     foo[row][col] = 1
+        #     return foo
+        # def moveRight(piece):
+        #                 if (col+1) < len(piece[row]):
+        #                     foo[row][col+1] = 1
+        #                 else:
+        #                     foo[row][col] = 1
+        #     return foo
+        # def moveDown(piece):
+        #                 if (row+1) < len(piece):
+        #                     print row+1
+        #                     print len(piece)
+        #                     foo[row+1][col] = 1
+        #                 else:
+        #                     foo[row][col] = 1
+        #     return foo
+
     def print_to_console(self):
         for row in range(len(self.state)):
             print self.state[row]
 
     # def print_to_screen(self)
+
+def process_input(event):
+    if (event.type == KEYDOWN):
+        if event.key == pygame.K_LEFT:
+            return "left"
+        elif event.key == pygame.K_RIGHT:
+            return "right"
+        elif event.key == pygame.K_DOWN:
+            return "down"
 
 def main():
     # Initialise the game engine
@@ -97,9 +196,20 @@ def main():
         # Clear the screen
         screen.fill(BLACK)
 
-        # Spawn a new piece,
-        newPiece = Game.spawn()
+        # Spawn a new piece
+        newPiece = Piece()
+
+        ## Move piece
+        # Where is it trying to go?
+        # print newPiece.get_coordinates()
+
+        direction = process_input(event)
+        print direction
+        if newPiece.can_move(Game, direction):
+            newPiece.move(direction)
+
         # Merge it with current game state
+        ## DO THIS ONLY ONCE THE PIECE HAS FALLEN AND OVER WITH
         newPiece.merge(Game)
         # Draw game to screen
         Game.draw(screen)
