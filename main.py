@@ -54,21 +54,32 @@ def moveLeft(piece):
     for row in range(len(piece)):
         for col in range(len(piece[row])):
             if piece[row][col] == 1:
-                foo[row][col-1] = 1
+                if (col-1) >= 0:
+                    foo[row][col-1] = 1
+                else:
+                    foo[row][col] = 1
     return foo
 def moveRight(piece):
     foo = [[0]*10 for i in range(20)]
     for row in range(len(piece)):
         for col in range(len(piece[row])):
             if piece[row][col] == 1:
-                foo[row][col+1] = 1
+                if (col+1) < len(piece[row]):
+                    foo[row][col+1] = 1
+                else:
+                    foo[row][col] = 1
     return foo
 def moveDown(piece):
     foo = [[0]*10 for i in range(20)]
     for row in range(len(piece)):
         for col in range(len(piece[row])):
             if piece[row][col] == 1:
-                foo[row+1][col] = 1
+                if (row+1) < len(piece):
+                    print row+1
+                    print len(piece)
+                    foo[row+1][col] = 1
+                else:
+                    foo[row][col] = 1
     return foo
 
 def mergeGamePiece(game, piece):
@@ -130,7 +141,8 @@ while True:
     gp = mergeGamePiece(game, piece)
 
     # Check input
-    if (event.type == KEYUP) or (event.type == KEYDOWN):
+    # if (event.type == KEYUP) or (event.type == KEYDOWN):
+    if (event.type == KEYDOWN):
         if event.key == pygame.K_LEFT:
             piece = moveLeft(piece)
         elif event.key == pygame.K_RIGHT:
