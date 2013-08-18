@@ -187,27 +187,10 @@ def main():
         Game.draw(screen)
 
 
-        # gp = mergeGamePiece(game, piece)
-
-        # # Check input
-        # # if (event.type == KEYUP) or (event.type == KEYDOWN):
-        # if (event.type == KEYDOWN):
-        #     if event.key == pygame.K_LEFT:
-        #         piece = moveLeft(piece)
-        #     elif event.key == pygame.K_RIGHT:
-        #         piece = moveRight(piece)
-        #     elif event.key == pygame.K_DOWN:
-        #         piece = moveDown(piece)
-        #     # elif event.key == pygame.K_UP:
-        #     #
-
         # if not(mergeGamePiece(game, piece) is None):
         #     gp = mergeGamePiece(game, piece)
-
         # drawGame(screen, gp)
-
         # Move objects...
-
         # Draw objects...
         # screen.blit(background, (100,100)).l.
 
@@ -217,94 +200,4 @@ def main():
 if __name__ == "__main__":
     main()
 
-
-
-    # TODO add index checks in your moveL/R/D functions
-    # TODO generate pieces
-
-    # # Helper functions ------------------------------------------------------#
-    # def printMatrix(matrix):
-    #     for row in range(len(matrix)):
-    #         print matrix[row]
-    # #------------------------------------------------------------------------#
-
-    # # Drawing functions -----------------------------------------------------#
-    # def drawGame(surface, grid):
-    #     # grid[row][col]
-    #     for row in range(len(grid)):
-    #         for col in range(len(grid[row])):
-    #             if grid[row][col] == 1:
-    #                 pygame.draw.rect(surface, WHITE, (CELL_W*col, CELL_H*row, CELL_W, CELL_H))
-
-    # # TODO Abstract away from drawing pieces -- pieces should be matrices?
-    # def drawIBlock(surface, color, x, y):
-    #     pygame.draw.rect(surface, color, (x, y, CELL_W, CELL_H))
-    #     pygame.draw.rect(surface, color, (x, y+CELL_H, CELL_W, CELL_H))
-    #     pygame.draw.rect(surface, color, (x, y+2*CELL_H, CELL_W, CELL_H))
-    #     pygame.draw.rect(surface, color, (x, y+3*CELL_H, CELL_W, CELL_H))
-    # def drawOBlock(surface, color, x, y):
-    #     pygame.draw.rect(surface, color, (x, y, CELL_W, CELL_H))
-    #     pygame.draw.rect(surface, color, (x+CELL_W, y, CELL_W, CELL_H))
-    #     pygame.draw.rect(surface, color, (x, y+CELL_H, CELL_W, CELL_H))
-    #     pygame.draw.rect(surface, color, (x+CELL_W, y+CELL_H, CELL_W, CELL_H))
-    # def drawZBlock(surface, color, x, y):
-    #     pygame.draw.rect(surface, color, (x, y, CELL_W, CELL_H))
-    #     pygame.draw.rect(surface, color, (x+CELL_W, y, CELL_W, CELL_H))
-    #     pygame.draw.rect(surface, color, (x+CELL_W, y+CELL_H, CELL_W, CELL_H))
-    #     pygame.draw.rect(surface, color, (x+2*CELL_W, y+CELL_H, CELL_W, CELL_H))
-    # def drawTBlock(surface, color, x, y):
-    #     pygame.draw.rect(surface, color, (x, y, CELL_W, CELL_H))
-    #     pygame.draw.rect(surface, color, (x+CELL_W, y, CELL_W, CELL_H))
-    #     pygame.draw.rect(surface, color, (x+2*CELL_W, y, CELL_W, CELL_H))
-    #     pygame.draw.rect(surface, color, (x+CELL_W, y+CELL_H, CELL_W, CELL_H))
-    # def drawLBlock(surface, color, x, y):
-    #     pygame.draw.rect(surface, color, (x, y, CELL_W, CELL_H))
-    #     pygame.draw.rect(surface, color, (x, y+CELL_H, CELL_W, CELL_H))
-    #     pygame.draw.rect(surface, color, (x+CELL_W, y, CELL_W, CELL_H))
-    #     pygame.draw.rect(surface, color, (x+2*CELL_W, y, CELL_W, CELL_H))
-    # #------------------------------------------------------------------------#
-
-    # # Matrix manipulation ---------------------------------------------------#
-    # def moveLeft(piece):
-    #     foo = [[0]*10 for i in range(20)]
-    #     for row in range(len(piece)):
-    #         for col in range(len(piece[row])):
-    #             if piece[row][col] == 1:
-    #                 if (col-1) >= 0:
-    #                     foo[row][col-1] = 1
-    #                 else:
-    #                     foo[row][col] = 1
-    #     return foo
-    # def moveRight(piece):
-    #     foo = [[0]*10 for i in range(20)]
-    #     for row in range(len(piece)):
-    #         for col in range(len(piece[row])):
-    #             if piece[row][col] == 1:
-    #                 if (col+1) < len(piece[row]):
-    #                     foo[row][col+1] = 1
-    #                 else:
-    #                     foo[row][col] = 1
-    #     return foo
-    # def moveDown(piece):
-    #     foo = [[0]*10 for i in range(20)]
-    #     for row in range(len(piece)):
-    #         for col in range(len(piece[row])):
-    #             if piece[row][col] == 1:
-    #                 if (row+1) < len(piece):
-    #                     print row+1
-    #                     print len(piece)
-    #                     foo[row+1][col] = 1
-    #                 else:
-    #                     foo[row][col] = 1
-    #     return foo
-
-    # def mergeGamePiece(game, piece):
-    #     foo = [[0]*10 for i in range(20)]
-    #     for row in range(len(game)):
-    #         for col in range(len(game[row])):
-    #             if (game[row][col] == 1) and (piece[row][col] == 1):
-    #                 return None
-    #             else:
-    #                 foo[row][col] = game[row][col] + piece[row][col]
-    #     return foo
 
