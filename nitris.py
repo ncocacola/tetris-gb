@@ -24,28 +24,31 @@ RED   = (255,   0,   0)
 
 class Tetris(object):
     def __init__(self):
-        self.state = [[0]*ARRAY_X for i in range(ARRAY_Y)]    # 10 * 20 array of ints
+        self.state = [[0]*ARRAY_Y for i in range(ARRAY_X)]    # 10 * 20 array of ints
         self.level = 1
         self.lines = 0
         self.score = 0
 
     def draw(self, surface):    
-        for row in range(len(self.state)):
-            for col in range(len(self.state[row])):
-                if self.state[row][col] == 1:
+        for col in range(len(self.state)):
+            for row in range(len(self.state[col])):
+                if self.state[col][row] == 1:
                     pygame.draw.rect(surface, WHITE, (CELL_W*col, CELL_H*row, CELL_W, CELL_H))
 
 
     def print_to_console(self):
-        for row in range(len(self.state)):
-            print self.state[row]
+        # Zip an unzipped version of self.state (zip(*self.state))
+        # Apply the list() function to each resulting tuple to get a bunch of lists
+        transpose = map(list, zip(*self.state))
+        for row in range(len(transpose)):
+            print transpose[row]
 
     # def print_to_screen(self):
 
 
 class Piece(object):
     def __init__(self):
-        self.state = [[0]*ARRAY_X for i in range(ARRAY_Y)]
+        self.state = [[0]*ARRAY_Y for i in range(ARRAY_X)]
         self.state[1][1] = 1
         self.state[2][1] = 1
         self.state[3][1] = 1
@@ -53,10 +56,17 @@ class Piece(object):
         # self.state[y][x]
 
     def merge(self, Game):
-        foo = [[0]*10 for i in range(20)]
+        ## REWRITE THIS FUNCTION
+        # self.print_to_console()
+        # print ""
+        # Game.print_to_console()
+
+        foo = [[0]*ARRAY_Y for i in range(ARRAY_X)]
         for row in range(len(Game.state)):
             for col in range(len(Game.state[row])):
                 # If there is a clash, don't do anything
+
+                ## REWRITE THIS PART USING THE 'checklist' method, else doesn't work
                 if (Game.state[row][col] == 1) and (self.state[row][col] == 1):
                     return None
                 # Else, merge the two arrays
@@ -79,7 +89,7 @@ class Piece(object):
         coordinates = self.get_coordinates()
         checklist = []
 
-        for y, x in coordinates:
+        for x, y in coordinates:
             # print "y: " + str(y) + " x: " + str(x)
             if direction == "left" and (x-1) >= MIN_X:
                 print "left"
@@ -98,65 +108,25 @@ class Piece(object):
             
 
     def move(self, direction):
-
         coordinates = self.get_coordinates()
 
-        for y, x in coordinates:
+        for x, y in coordinates:
             if direction == "left":
-                self.state[y][x] = 0
-                self.state[y][x-1] = 1
+                self.state[x][y] = 0
+                self.state[x-1][y] = 1
             elif direction == "right":
-                self.state[y][x] = 0
-                self.state[y][x+1] = 1
+                self.state[x][y] = 0
+                self.state[x+1][y] = 1
             elif direction == "down":
-                self.state[y][x] = 0
-                self.state[y+1][x] = 1
-
-
-        # foo = [[0]*10 for i in range(20)]
-
-        # # Check input
-        # # if (event.type == KEYUP) or (event.type == KEYDOWN):
-        # if (event.type == KEYDOWN):
-        #     if event.key == pygame.K_LEFT:
-        #         if can_move(self, "left"):
-
-        #     elif event.key == pygame.K_RIGHT:
-        #         if can_move(self, "right"):
-        #             move(self, "right")
-        #     elif event.key == pygame.K_DOWN:
-        #         if can_move(self, "down"):
-        #             move(self, "down")
-        #     # elif event.key == pygame.K_UP:
-
-        # def moveLeft(piece):
-        #     foo = [[0]*10 for i in range(20)]
-        #     for row in range(len(piece)):
-        #         for col in range(len(piece[row])):
-        #             if piece[row][col] == 1:
-        #                 if (col-1) >= 0:
-        #                     foo[row][col-1] = 1
-        #                 else:
-        #                     foo[row][col] = 1
-        #     return foo
-        # def moveRight(piece):
-        #                 if (col+1) < len(piece[row]):
-        #                     foo[row][col+1] = 1
-        #                 else:
-        #                     foo[row][col] = 1
-        #     return foo
-        # def moveDown(piece):
-        #                 if (row+1) < len(piece):
-        #                     print row+1
-        #                     print len(piece)
-        #                     foo[row+1][col] = 1
-        #                 else:
-        #                     foo[row][col] = 1
-        #     return foo
+                self.state[x][y] = 0
+                self.state[x][y+1] = 1
 
     def print_to_console(self):
-        for row in range(len(self.state)):
-            print self.state[row]
+        # Zip an unzipped version of self.state (zip(*self.state))
+        # Apply the list() function to each resulting tuple to get a bunch of lists
+        transpose = map(list, zip(*self.state))
+        for row in range(len(transpose)):
+            print transpose[row]
 
     # def print_to_screen(self)
 
@@ -182,6 +152,7 @@ def main():
     clock = pygame.time.Clock()
 
     Game = Tetris()
+    newPiece = Piece()
 
     # for i in range(1):
     while True:
@@ -197,7 +168,6 @@ def main():
         screen.fill(BLACK)
 
         # Spawn a new piece
-        newPiece = Piece()
 
         ## Move piece
         # Where is it trying to go?
@@ -208,9 +178,11 @@ def main():
         if newPiece.can_move(Game, direction):
             newPiece.move(direction)
 
+
         # Merge it with current game state
         ## DO THIS ONLY ONCE THE PIECE HAS FALLEN AND OVER WITH
         newPiece.merge(Game)
+
         # Draw game to screen
         Game.draw(screen)
 
