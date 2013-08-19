@@ -12,7 +12,6 @@ CELL_W, CELL_H = WIDTH/10, HEIGHT/20
 ARRAY_X, ARRAY_Y = WIDTH/20, HEIGHT/20
 W_SIZE   = (WIDTH, HEIGHT)
 W_CENTER = (WIDTH/2, HEIGHT/2)
-
 MIN_X, MAX_X, MIN_Y, MAX_Y = 0, ARRAY_X-1, 0, ARRAY_Y-1
 
 # Usual colours
@@ -21,6 +20,15 @@ WHITE = (255, 255, 255)
 BLUE  = (  0,   0, 255)
 GREEN = (  0, 255,   0)
 RED   = (255,   0,   0)
+
+# Frames per second
+FPS = 50
+
+# Move ticker
+## http://stackoverflow.com/questions/16044229/how-to-get-keyboard-input-in-pygame
+## TODO MOVE_TICKER should not be capital as it varies
+MOVE_TICKER = 0
+MOVE_TICKER_DEFAULT = 10 # Allow a move every 'FPS/5' (= 10) frames = every 0.2 second
 
 class Tetris(object):
     def __init__(self):
@@ -43,8 +51,6 @@ class Tetris(object):
         for row in range(len(transpose)):
             print transpose[row]
 
-    # def print_to_screen(self):
-
 
 class Piece(object):
     def __init__(self):
@@ -53,8 +59,6 @@ class Piece(object):
         self.state[2][1] = 1
         self.state[3][1] = 1
         self.state[4][1] = 1
-        # self.state[y][x]
-
 
     # Rewrite this function and use it to merge once the piece has fallen down
     # def merge(self, Game):
@@ -139,19 +143,38 @@ class Piece(object):
     # def print_to_screen(self)
 
 def process_input(event):
-    # if (event.type == KEYUP) or (event.type == KEYDOWN):
+    # TODO do some refactoring and get rid of this 'global'
+    global MOVE_TICKER
+
     if (event.type == KEYDOWN):
-        if event.key == pygame.K_LEFT:
-            return "left"
-        elif event.key == pygame.K_RIGHT:
-            return "right"
-        elif event.key == pygame.K_DOWN:
-            return "down"
-        # TODO Remove this later
-        elif event.key == pygame.K_UP:
-            return "up"
+        if MOVE_TICKER == 0:
+            MOVE_TICKER = MOVE_TICKER_DEFAULT
+            if event.key == pygame.K_LEFT:
+                # if MOVE_TICKER == 0:
+                #     MOVE_TICKER = MOVE_TICKER_DEFAULT
+                return "left"
+            elif event.key == pygame.K_RIGHT:
+                # if MOVE_TICKER == 0:
+                    # MOVE_TICKER = MOVE_TICKER_DEFAULT
+                return "right"
+            elif event.key == pygame.K_DOWN:
+                # if MOVE_TICKER == 0:
+                    # MOVE_TICKER = MOVE_TICKER_DEFAULT
+                return "down"
+            # TODO Remove this later
+            elif event.key == pygame.K_UP:
+                # if MOVE_TICKER == 0:
+                    # MOVE_TICKER = MOVE_TICKER_DEFAULT
+                return "up"
+    # else:
+    #     if MOVE_TICKER == 0:
+    #         MOVE_TICKER = MOVE_TICKER_DEFAULT
+    #         return "down"
 
 def main():
+    # TODO do some refactoring and get rid of this 'global'
+    global MOVE_TICKER
+
     # Initialise the game engine
     pygame.init()
 
@@ -168,8 +191,11 @@ def main():
 
     # for i in range(1):
     while True:
-        # Lock the game at 50fps
-        clock.tick(50)
+        # Lock the game at default fps
+        clock.tick(FPS)
+
+        if MOVE_TICKER > 0:
+            MOVE_TICKER -= 1
 
         # Process events
         for event in pygame.event.get():
@@ -186,10 +212,11 @@ def main():
         # print newPiece.get_coordinates()
 
         direction = process_input(event)
+
         if (direction is not None):
             print direction
+        
         if newPiece.can_move(Game, direction):
-            print "Can Move"
             newPiece.move(direction)
 
 
