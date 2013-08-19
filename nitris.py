@@ -28,7 +28,7 @@ FPS = 50
 ## http://stackoverflow.com/questions/16044229/how-to-get-keyboard-input-in-pygame
 ## TODO MOVE_TICKER should not be capital as it varies
 MOVE_TICKER = 0
-MOVE_TICKER_DEFAULT = 10 # Allow a move every 'FPS/5' (= 10) frames = every 0.2 second
+MOVE_TICKER_DEFAULT = 10 # Allow a move every 10 frames = every 0.2 second
 
 class Tetris(object):
     def __init__(self):
@@ -37,11 +37,17 @@ class Tetris(object):
         self.lines = 0
         self.score = 0
 
+    def merge(self, Piece):
+        for col in range(len(self.state)):
+            for row in range(len(self.state[col])):
+                self.state[col][row] += Piece.state[col][row]
+
+
     def draw(self, surface):    
         for col in range(len(self.state)):
             for row in range(len(self.state[col])):
                 if self.state[col][row] == 1:
-                    pygame.draw.rect(surface, WHITE, (CELL_W*col, CELL_H*row, CELL_W, CELL_H))
+                    pygame.draw.rect(surface, BLUE, (CELL_W*col, CELL_H*row, CELL_W, CELL_H))
 
 
     def print_to_console(self):
@@ -62,6 +68,12 @@ class Piece(object):
 
     # Rewrite this function and use it to merge once the piece has fallen down
     # def merge(self, Game):
+    #     for col in range(len(self.state)):
+    #         for row in range(len(self.state[col])):
+    #             if self.state[col][row] == 1:
+    #                 pygame.draw.rect(surface, WHITE, (CELL_W*col, CELL_H*row, CELL_W, CELL_H))
+
+
     #     foo = [[0]*ARRAY_Y for i in range(ARRAY_X)]
     #     for row in range(len(Game.state)):
     #         for col in range(len(Game.state[row])):
@@ -79,7 +91,7 @@ class Piece(object):
         for col in range(len(self.state)):
             for row in range(len(self.state[col])):
                 if self.state[col][row] == 1:
-                    pygame.draw.rect(surface, WHITE, (CELL_W*col, CELL_H*row, CELL_W, CELL_H))
+                    pygame.draw.rect(surface, BLUE, (CELL_W*col, CELL_H*row, CELL_W, CELL_H))
 
     def get_coordinates(self):
         coordinates = []
@@ -108,10 +120,8 @@ class Piece(object):
 
         return (len(checklist) == 4) and all(item == True for item in checklist)
             
-
     def move(self, direction):
         coordinates = self.get_coordinates()
-        print coordinates
 
         if direction == "left":
             for x, y in coordinates:
@@ -133,6 +143,23 @@ class Piece(object):
                self.state[x][y] = 0
                self.state[x][y-1] = 1 
 
+    def has_finished(self, Game):
+        coordinates = self.get_coordinates()
+
+        print coordinates
+        for x, y in coordinates:
+            if y < MAX_Y:
+                print self.state[x][y+1]
+
+        # If the piece has reached the bottom
+        if any(y == MAX_Y for y in [y for x, y in coordinates]):
+            return True
+        # Else if the piece has fallen on top of other blocks
+        elif any(Game.state[x][y+1] == 1 for x, y in coordinates):
+            return True
+        else:
+            return False
+
     def print_to_console(self):
         # Zip an unzipped version of self.state (zip(*self.state))
         # Apply the list() function to each resulting tuple to get a bunch of lists
@@ -150,21 +177,13 @@ def process_input(event):
         if MOVE_TICKER == 0:
             MOVE_TICKER = MOVE_TICKER_DEFAULT
             if event.key == pygame.K_LEFT:
-                # if MOVE_TICKER == 0:
-                #     MOVE_TICKER = MOVE_TICKER_DEFAULT
                 return "left"
             elif event.key == pygame.K_RIGHT:
-                # if MOVE_TICKER == 0:
-                    # MOVE_TICKER = MOVE_TICKER_DEFAULT
                 return "right"
             elif event.key == pygame.K_DOWN:
-                # if MOVE_TICKER == 0:
-                    # MOVE_TICKER = MOVE_TICKER_DEFAULT
                 return "down"
             # TODO Remove this later
             elif event.key == pygame.K_UP:
-                # if MOVE_TICKER == 0:
-                    # MOVE_TICKER = MOVE_TICKER_DEFAULT
                 return "up"
     # else:
     #     if MOVE_TICKER == 0:
@@ -203,24 +222,33 @@ def main():
                 sys.exit()
 
         # Clear the screen
-        screen.fill(BLACK)
+        screen.fill(WHITE)
 
-        # Spawn a new piece
 
-        ## Move piece
-        # Where is it trying to go?
-        # print newPiece.get_coordinates()
+        print ""
+        print ""
+        Game.print_to_console()
+        print ""
+        print ""
 
+        # Process keyboard input
         direction = process_input(event)
-
-        if (direction is not None):
-            print direction
         
-        if newPiece.can_move(Game, direction):
+        # # Move the piece if it can        
+        # if newPiece.can_move(Game, direction):
+        #     newPiece.move(direction)
+
+        # If the piece has reached the bottom or the top of the stack of pieces
+        if newPiece.has_finished(Game):
+            # Merge it with current game state
+            print "Merge"
+            Game.merge(newPiece) 
+            # Spawn a new piece
+            newPiece = Piece()
+        # Else, move the piece in the specified direction, if it can
+        elif newPiece.can_move(Game, direction):
             newPiece.move(direction)
 
-
-        # Merge it with current game state
         ## DO THIS ONLY ONCE THE PIECE HAS FALLEN AND OVER WITH
         # newPiece.merge(Game)
 
