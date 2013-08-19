@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+## http://tetris.wikia.com/wiki/Tetris_Guideline
+
 import sys
 import pygame
 from pygame.locals import *
@@ -37,11 +39,10 @@ class Tetris(object):
         self.lines = 0
         self.score = 0
 
-    def merge(self, Piece):
+    def merge(self, Tetronimo):
         for col in range(len(self.state)):
             for row in range(len(self.state[col])):
-                self.state[col][row] += Piece.state[col][row]
-
+                self.state[col][row] += Tetronimo.state[col][row]
 
     def draw(self, surface):    
         for col in range(len(self.state)):
@@ -49,49 +50,20 @@ class Tetris(object):
                 if self.state[col][row] == 1:
                     pygame.draw.rect(surface, BLUE, (CELL_W*col, CELL_H*row, CELL_W, CELL_H))
 
-
-    def print_to_console(self):
+    def console(self):
         # Zip an unpacked version of self.state (zip(*self.state))
         # Apply the list() function to each resulting tuple to get a bunch of lists
         transpose = map(list, zip(*self.state))
         for row in range(len(transpose)):
             print transpose[row]
 
-
-class Piece(object):
+class Tetronimo(object):
     def __init__(self):
         self.state = [[0]*ARRAY_Y for i in range(ARRAY_X)]
         self.state[1][1] = 1
         self.state[2][1] = 1
         self.state[3][1] = 1
         self.state[4][1] = 1
-
-    # Rewrite this function and use it to merge once the piece has fallen down
-    # def merge(self, Game):
-    #     for col in range(len(self.state)):
-    #         for row in range(len(self.state[col])):
-    #             if self.state[col][row] == 1:
-    #                 pygame.draw.rect(surface, WHITE, (CELL_W*col, CELL_H*row, CELL_W, CELL_H))
-
-
-    #     foo = [[0]*ARRAY_Y for i in range(ARRAY_X)]
-    #     for row in range(len(Game.state)):
-    #         for col in range(len(Game.state[row])):
-    #             # If there is a clash, don't do anything
-
-    #             ## REWRITE THIS PART USING THE 'checklist' method, else doesn't work
-    #             if (Game.state[row][col] == 1) and (self.state[row][col] == 1):
-    #                 return None
-    #             # Else, merge the two arrays
-    #             else:
-    #                 foo[row][col] = Game.state[row][col] + self.state[row][col]
-    #     Game.state = foo
-
-    def draw(self, surface):    
-        for col in range(len(self.state)):
-            for row in range(len(self.state[col])):
-                if self.state[col][row] == 1:
-                    pygame.draw.rect(surface, BLUE, (CELL_W*col, CELL_H*row, CELL_W, CELL_H))
 
     def get_coordinates(self):
         coordinates = []
@@ -103,7 +75,8 @@ class Piece(object):
         # Sort coordinates from left to right (x-coordinate)
 
     def can_move(self, Game, direction):
-        # Only checks that piece stays in the game boundaries
+        # TODO Only checks that piece stays in the game boundaries
+        # TODO Get it to check if other piece are not obstructing
         coordinates = self.get_coordinates()
         checklist = []
 
@@ -146,28 +119,28 @@ class Piece(object):
     def has_finished(self, Game):
         coordinates = self.get_coordinates()
 
-        print coordinates
-        for x, y in coordinates:
-            if y < MAX_Y:
-                print self.state[x][y+1]
-
         # If the piece has reached the bottom
         if any(y == MAX_Y for y in [y for x, y in coordinates]):
             return True
-        # Else if the piece has fallen on top of other blocks
+        # Elif the piece has fallen on top of other blocks
         elif any(Game.state[x][y+1] == 1 for x, y in coordinates):
             return True
+        # Return False in the default case
         else:
             return False
 
-    def print_to_console(self):
+    def draw(self, surface):    
+        for col in range(len(self.state)):
+            for row in range(len(self.state[col])):
+                if self.state[col][row] == 1:
+                    pygame.draw.rect(surface, BLUE, (CELL_W*col, CELL_H*row, CELL_W, CELL_H))
+    
+    def console(self):
         # Zip an unzipped version of self.state (zip(*self.state))
         # Apply the list() function to each resulting tuple to get a bunch of lists
         transpose = map(list, zip(*self.state))
         for row in range(len(transpose)):
             print transpose[row]
-
-    # def print_to_screen(self)
 
 def process_input(event):
     # TODO do some refactoring and get rid of this 'global'
@@ -196,23 +169,24 @@ def main():
 
     # Initialise the game engine
     pygame.init()
-
+    
     # Create window
     screen = pygame.display.set_mode(W_SIZE)
     pygame.display.set_caption("Tetris")
-    # background = pygame.image.load('game.png').convert()
 
     # Create clock
     clock = pygame.time.Clock()
 
+    # Create the Game
     Game = Tetris()
-    newPiece = Piece()
+    Piece = Tetronimo()
 
     # for i in range(1):
     while True:
         # Lock the game at default fps
         clock.tick(FPS)
 
+        # Decrement MOVE_TICKER
         if MOVE_TICKER > 0:
             MOVE_TICKER -= 1
 
@@ -224,45 +198,22 @@ def main():
         # Clear the screen
         screen.fill(WHITE)
 
-
-        print ""
-        print ""
-        Game.print_to_console()
-        print ""
-        print ""
-
         # Process keyboard input
         direction = process_input(event)
         
-        # # Move the piece if it can        
-        # if newPiece.can_move(Game, direction):
-        #     newPiece.move(direction)
-
         # If the piece has reached the bottom or the top of the stack of pieces
-        if newPiece.has_finished(Game):
+        if Piece.has_finished(Game):
             # Merge it with current game state
-            print "Merge"
-            Game.merge(newPiece) 
+            Game.merge(Piece) 
             # Spawn a new piece
-            newPiece = Piece()
+            Piece = Tetronimo()
         # Else, move the piece in the specified direction, if it can
-        elif newPiece.can_move(Game, direction):
-            newPiece.move(direction)
-
-        ## DO THIS ONLY ONCE THE PIECE HAS FALLEN AND OVER WITH
-        # newPiece.merge(Game)
+        elif Piece.can_move(Game, direction):
+            Piece.move(direction)
 
         # Draw game to screen
         Game.draw(screen)
-        newPiece.draw(screen)
-
-
-        # if not(mergeGamePiece(game, piece) is None):
-        #     gp = mergeGamePiece(game, piece)
-        # drawGame(screen, gp)
-        # Move objects...
-        # Draw objects...
-        # screen.blit(background, (100,100)).l.
+        Piece.draw(screen)
 
         # Update the screen
         pygame.display.flip()
