@@ -37,7 +37,7 @@ class Tetris(object):
 
 
     def print_to_console(self):
-        # Zip an unzipped version of self.state (zip(*self.state))
+        # Zip an unpacked version of self.state (zip(*self.state))
         # Apply the list() function to each resulting tuple to get a bunch of lists
         transpose = map(list, zip(*self.state))
         for row in range(len(transpose)):
@@ -55,24 +55,27 @@ class Piece(object):
         self.state[4][1] = 1
         # self.state[y][x]
 
-    def merge(self, Game):
-        ## REWRITE THIS FUNCTION
-        # self.print_to_console()
-        # print ""
-        # Game.print_to_console()
 
-        foo = [[0]*ARRAY_Y for i in range(ARRAY_X)]
-        for row in range(len(Game.state)):
-            for col in range(len(Game.state[row])):
-                # If there is a clash, don't do anything
+    # Rewrite this function and use it to merge once the piece has fallen down
+    # def merge(self, Game):
+    #     foo = [[0]*ARRAY_Y for i in range(ARRAY_X)]
+    #     for row in range(len(Game.state)):
+    #         for col in range(len(Game.state[row])):
+    #             # If there is a clash, don't do anything
 
-                ## REWRITE THIS PART USING THE 'checklist' method, else doesn't work
-                if (Game.state[row][col] == 1) and (self.state[row][col] == 1):
-                    return None
-                # Else, merge the two arrays
-                else:
-                    foo[row][col] = Game.state[row][col] + self.state[row][col]
-        Game.state = foo
+    #             ## REWRITE THIS PART USING THE 'checklist' method, else doesn't work
+    #             if (Game.state[row][col] == 1) and (self.state[row][col] == 1):
+    #                 return None
+    #             # Else, merge the two arrays
+    #             else:
+    #                 foo[row][col] = Game.state[row][col] + self.state[row][col]
+    #     Game.state = foo
+
+    def draw(self, surface):    
+        for col in range(len(self.state)):
+            for row in range(len(self.state[col])):
+                if self.state[col][row] == 1:
+                    pygame.draw.rect(surface, WHITE, (CELL_W*col, CELL_H*row, CELL_W, CELL_H))
 
     def get_coordinates(self):
         coordinates = []
@@ -85,23 +88,18 @@ class Piece(object):
 
     def can_move(self, Game, direction):
         # Only checks that piece stays in the game boundaries
-
         coordinates = self.get_coordinates()
         checklist = []
 
         for x, y in coordinates:
-            # print "y: " + str(y) + " x: " + str(x)
             if direction == "left" and (x-1) >= MIN_X:
-                print "left"
-                print x-1
                 checklist.append(True)
             elif direction == "right" and (x+1) <= MAX_X:
-                print "right"
-                print x+1
                 checklist.append(True)
             elif direction == "down" and (y+1) <= MAX_Y:
-                print "down"
-                print y+1
+                checklist.append(True)
+            # TODO Remove this later
+            elif direction == "up" and (y-1) >= MIN_Y:
                 checklist.append(True)
 
         return (len(checklist) == 4) and all(item == True for item in checklist)
@@ -109,17 +107,27 @@ class Piece(object):
 
     def move(self, direction):
         coordinates = self.get_coordinates()
+        print coordinates
 
-        for x, y in coordinates:
-            if direction == "left":
+        if direction == "left":
+            for x, y in coordinates:
                 self.state[x][y] = 0
                 self.state[x-1][y] = 1
-            elif direction == "right":
+        elif direction == "right":
+            # Reverse the array to go through coordinates right-to-left
+            # [::-1] ==> [start:stop:step]
+            for x, y in coordinates[::-1]:
                 self.state[x][y] = 0
                 self.state[x+1][y] = 1
-            elif direction == "down":
+        elif direction == "down":
+            for x, y in coordinates:
                 self.state[x][y] = 0
                 self.state[x][y+1] = 1
+        # TODO Remove this later
+        elif direction == "up":
+            for x, y in coordinates:
+               self.state[x][y] = 0
+               self.state[x][y-1] = 1 
 
     def print_to_console(self):
         # Zip an unzipped version of self.state (zip(*self.state))
@@ -131,6 +139,7 @@ class Piece(object):
     # def print_to_screen(self)
 
 def process_input(event):
+    # if (event.type == KEYUP) or (event.type == KEYDOWN):
     if (event.type == KEYDOWN):
         if event.key == pygame.K_LEFT:
             return "left"
@@ -138,6 +147,9 @@ def process_input(event):
             return "right"
         elif event.key == pygame.K_DOWN:
             return "down"
+        # TODO Remove this later
+        elif event.key == pygame.K_UP:
+            return "up"
 
 def main():
     # Initialise the game engine
@@ -174,17 +186,20 @@ def main():
         # print newPiece.get_coordinates()
 
         direction = process_input(event)
-        print direction
+        if (direction is not None):
+            print direction
         if newPiece.can_move(Game, direction):
+            print "Can Move"
             newPiece.move(direction)
 
 
         # Merge it with current game state
         ## DO THIS ONLY ONCE THE PIECE HAS FALLEN AND OVER WITH
-        newPiece.merge(Game)
+        # newPiece.merge(Game)
 
         # Draw game to screen
         Game.draw(screen)
+        newPiece.draw(screen)
 
 
         # if not(mergeGamePiece(game, piece) is None):
