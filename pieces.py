@@ -85,3 +85,65 @@ class Tetronimo(object):
         transpose = map(list, zip(*self.state))
         for row in range(len(transpose)):
             print transpose[row]
+
+class TetroI(Tetronimo):
+    def __init__(self):
+        self.state = [[0]*ARRAY_Y for i in range(ARRAY_X)]
+        self.state[1][1] = 1
+        self.state[2][1] = 1
+        self.state[3][1] = 1
+        self.state[4][1] = 1
+
+class TetroO(Tetronimo):
+    def __init__(self):
+        self.state = [[0]*ARRAY_Y for i in range(ARRAY_X)]
+        self.state[1][1] = 1
+        self.state[1][2] = 1
+        self.state[2][1] = 1
+        self.state[2][2] = 1
+
+class TetroT(Tetronimo):
+    def __init__(self):
+        self.state = [[0]*ARRAY_Y for i in range(ARRAY_X)]
+        self.state[1][1] = 1
+        self.state[2][1] = 1
+        self.state[2][2] = 1
+        self.state[3][1] = 1
+
+class TetroS(Tetronimo):
+    def __init__(self):
+        self.state = [[0]*ARRAY_Y for i in range(ARRAY_X)]
+        self.state[1][2] = 1
+        self.state[2][1] = 1
+        self.state[2][2] = 1
+        self.state[3][1] = 1
+
+class TetroZ(Tetronimo):
+    def __init__(self):
+        self.state = [[0]*ARRAY_Y for i in range(ARRAY_X)]
+        self.state[1][1] = 1
+        self.state[2][1] = 1
+        self.state[2][2] = 1
+        self.state[3][2] = 1
+
+class TetroJ(Tetronimo):
+    def __init__(self):
+        self.state = [[0]*ARRAY_Y for i in range(ARRAY_X)]
+        self.state[1][1] = 1
+        self.state[1][2] = 1
+        self.state[2][2] = 1
+        self.state[3][2] = 1
+
+class TetroL(Tetronimo):
+    def __init__(self):
+        self.state = [[0]*ARRAY_Y for i in range(ARRAY_X)]
+        self.state[3][1] = 1
+        self.state[1][2] = 1
+        self.state[2][2] = 1
+        self.state[3][2] = 1
+
+
+
+
+
+
