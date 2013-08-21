@@ -48,9 +48,9 @@ def main():
     clock = pygame.time.Clock()
 
     # Create the Game
-    Game = Tetris()
-    Piece = Tetronimo()
-    # Piece = TetroO()
+    game = Game()
+    block = Block()
+    # block = BlockO()
 
     # for i in range(1):
     while True:
@@ -71,20 +71,20 @@ def main():
 
         # Process keyboard input
         direction = process_input(event)
-        
+
         # If the piece has reached the bottom or the top of the stack of pieces
-        if Piece.has_finished(Game):
+        if block.has_finished(game):
             # Merge it with current game state
-            Game.merge(Piece) 
+            game.merge(block)
             # Spawn a new piece
-            Piece = Tetronimo()
+            block = Block()
         # Else, move the piece in the specified direction, if it can
-        elif Piece.can_move(Game, direction):
-            Piece.move(direction)
+        elif block.can_move(direction):
+            block.move(direction)
 
         # Draw game to screen
-        Game.draw(screen)
-        Piece.draw(screen)
+        game.draw(screen)
+        block.draw(screen)
 
         # Update the screen
         pygame.display.flip()

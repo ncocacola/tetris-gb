@@ -1,7 +1,7 @@
 import pygame
 from config import *
 
-class Tetris(object):
+class Game(object):
     def __init__(self):
         self.tiles = []
         self.level = 1

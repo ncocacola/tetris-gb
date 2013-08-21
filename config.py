@@ -2,17 +2,22 @@
 
 # Useful classes
 class Direction(object):
-    def __init__(self, name):
+    def __init__(self, name, dx, dy):
         self.name = name
+        self.dx = dx
+        self.dy = dy
     def __str__(self):
         return self.name
 
-# Directions
-LEFT = Direction("left")
-RIGHT = Direction("right")
-DOWN = Direction("down")
-# TODO Remove this later
-UP = Direction("up")
+# Directions (NB: Board is upside down: Down ==> Add, Up ==> Substract)
+# http://stackoverflow.com/questions/1969005/enumerations-in-python (Objects with functionality)
+LEFT = Direction("left", -1, 0)
+RIGHT = Direction("right", 1, 0)
+DOWN = Direction("down", 0, 1)
+UP = Direction("up", 0, -1)         # TODO Remove this later
+
+# Step
+STEP = 1
 
 # Window size
 WIDTH, HEIGHT = 200, 400

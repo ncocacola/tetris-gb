@@ -17,7 +17,7 @@ class Tile(object):
     def __hash__(self):     # need this for comparison between Tiles in Sets
         return hash(self.__repr__())
 
-class Tetronimo(object):
+class Block(object):
     def __init__(self):
         self.tiles = [Tile(1, 1), Tile(2, 1), Tile(3, 1), Tile(4,1)]
     def __repr__(self):
@@ -31,9 +31,10 @@ class Tetronimo(object):
             state[tile.x][tile.y] = 1
         return state
 
-    def can_move(self, Game, direction):
+    def can_move(self, direction):
         # TODO Only checks that block stays in the game boundaries
         # TODO Get it to check if other block are not obstructing
+        # e.g. if you try to hit a block sideways
         checklist = []
 
         for tile in self.tiles:
@@ -50,65 +51,44 @@ class Tetronimo(object):
             
     def move(self, direction):
         for tile in self.tiles:
-            if direction == LEFT:
-                tile.x -= 
-            elif direction == RIGHT:
-                tile.x += 1
-        ## Board is upside down. Down ==> Add, Up ==> Substract
-            elif direction == DOWN:
-                tile.y += 1
-            # TODO Remove this later
-            elif direction == UP: 
-                tile.y -= 1
+            tile.x += direction.dx * STEP
+            tile.y += direction.dy * STEP
 
-    def has_finished(self, Game):
+    def has_finished(self, game):
         # If the block has reached the bottom
         if any(tile.y == MAX_Y for tile in self.tiles):
             return True
         # Elif the block has fallen on top of other blocks
-        elif list(set([Tile(tile.x, (tile.y+1)) for tile in self.tiles]) & set(Game.tiles)):
+        elif list(set([Tile(tile.x, (tile.y+1)) for tile in self.tiles]) & set(game.tiles)):
             return True
-        else:
-            return False
 
         # return any(tile.y == MAX_Y for tile in self.tiles) or \
         #        list(set([Tile(tile.x, (tile.y+1)) for tile in self.tiles]) & set(Game.tiles))
+
+        return False
 
     def draw(self, surface):
         for tile in self.tiles:
             pygame.draw.rect(surface, RED, (CELL_W*tile.x, CELL_H*tile.y, CELL_W, CELL_H))
 
-
-
-
-class TetroI(Tetronimo):
+class BlockI(Block):
     def __init__(self):
         self.tiles = [Tile(1, 1), Tile(2, 1), Tile(3, 1), Tile(4, 1)]
-
-class TetroO(Tetronimo):
+class BlockO(Block):
     def __init__(self):
         self.tiles = [Tile(1, 1), Tile(1, 2), Tile(2, 1), Tile(2, 2)]
-
-class TetroT(Tetronimo):
+class BlockT(Block):
     def __init__(self):
         self.tiles = [Tile(1, 1), Tile(2, 1), Tile(2, 2), Tile(3, 1)]
-
-class TetroS(Tetronimo):
+class BlockS(Block):
     def __init__(self):
         self.tiles = [Tile(1, 2), Tile(2, 1), Tile(2, 2), Tile(3, 1)]
-
-class TetroZ(Tetronimo):
+class BlockZ(Block):
     def __init__(self):
         self.tiles = [Tile(1, 1), Tile(2, 1), Tile(2, 2), Tile(3, 2)]
-
-class TetroJ(Tetronimo):
+class BlockJ(Block):
     def __init__(self):
         self.tiles = [Tile(1, 1), Tile(1, 2), Tile(2, 2), Tile(3, 2)]
-
-class TetroL(Tetronimo):
+class BlockL(Block):
     def __init__(self):
         self.tiles = [Tile(3, 1), Tile(1, 2), Tile(2, 2), Tile(3, 2)]
-
-
-
-
