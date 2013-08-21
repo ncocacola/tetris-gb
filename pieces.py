@@ -35,6 +35,10 @@ class Block(object):
         # TODO Only checks that block stays in the game boundaries
         # TODO Get it to check if other block are not obstructing
         # e.g. if you try to hit a block sideways
+
+        ## TODO rewrite this as such
+            # If I move r/l/u/d, do I intersect with any tiles from game?
+                # or hit a wall?
         checklist = []
 
         for tile in self.tiles:
@@ -51,8 +55,8 @@ class Block(object):
             
     def move(self, direction):
         for tile in self.tiles:
-            tile.x += direction.dx * STEP
-            tile.y += direction.dy * STEP
+            tile.x += direction.dx
+            tile.y += direction.dy
 
     def has_finished(self, game):
         # If the block has reached the bottom
@@ -71,12 +75,33 @@ class Block(object):
         for tile in self.tiles:
             pygame.draw.rect(surface, RED, (CELL_W*tile.x, CELL_H*tile.y, CELL_W, CELL_H))
 
+    # def array(self):
+    #     state = [[0]*4 for i in range(4)]
+    #     for tile in self.tiles:
+    #         state[tile.x][tile.y] = 1
+    #     return state
+
+    # def transpose(self):
+    #     return zip(*self.array())
+
 class BlockI(Block):
     def __init__(self):
         self.tiles = [Tile(1, 1), Tile(2, 1), Tile(3, 1), Tile(4, 1)]
+
+    def rotate(self):
+        if self.pointing == UP:
+            self.tiles = [Tile()]
+
+    # Take the matrix, transpose then mirror
+    # Try to do this on tiles directly
+
 class BlockO(Block):
     def __init__(self):
         self.tiles = [Tile(1, 1), Tile(1, 2), Tile(2, 1), Tile(2, 2)]
+
+    def rotate(self):
+        pass
+
 class BlockT(Block):
     def __init__(self):
         self.tiles = [Tile(1, 1), Tile(2, 1), Tile(2, 2), Tile(3, 1)]

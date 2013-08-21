@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 ## http://tetris.wikia.com/wiki/Tetris_Guideline
+## http://stackoverflow.com/questions/1969005/enumerations-in-python (Objects with functionality)
 
 # Useful modules
 import sys
@@ -51,6 +52,9 @@ def main():
     game = Game()
     block = Block()
     # block = BlockO()
+
+    # print block.array()
+    # print block.transpose()
 
     # for i in range(1):
     while True:
