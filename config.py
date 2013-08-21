@@ -1,11 +1,26 @@
 ## GLOBAL VARIABLES
+
+# Useful classes
+class Direction(object):
+    def __init__(self, name):
+        self.name = name
+    def __str__(self):
+        return self.name
+
+# Directions
+LEFT = Direction("left")
+RIGHT = Direction("right")
+DOWN = Direction("down")
+# TODO Remove this later
+UP = Direction("up")
+
 # Window size
 WIDTH, HEIGHT = 200, 400
 CELL_W, CELL_H = WIDTH/10, HEIGHT/20
 ARRAY_X, ARRAY_Y = WIDTH/20, HEIGHT/20
 W_SIZE   = (WIDTH, HEIGHT)
 W_CENTER = (WIDTH/2, HEIGHT/2)
-MIN_X, MAX_X, MIN_Y, MAX_Y = 0, ARRAY_X-1, 0, ARRAY_Y-1
+MIN_X, MAX_X, MIN_Y, MAX_Y = 0, ARRAY_X, 0, ARRAY_Y
 
 # Usual colours
 BLACK = (  0,   0,   0)

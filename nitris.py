@@ -20,14 +20,14 @@ def process_input(event):
         if MOVE_TICKER == 0:
             MOVE_TICKER = MOVE_TICKER_DEFAULT
             if event.key == pygame.K_LEFT:
-                return "left"
+                return LEFT
             elif event.key == pygame.K_RIGHT:
-                return "right"
+                return RIGHT
             elif event.key == pygame.K_DOWN:
-                return "down"
+                return DOWN
             # TODO Remove this later
             elif event.key == pygame.K_UP:
-                return "up"
+                return UP
     # else:
     #     if MOVE_TICKER == 0:
     #         MOVE_TICKER = MOVE_TICKER_DEFAULT
@@ -50,6 +50,7 @@ def main():
     # Create the Game
     Game = Tetris()
     Piece = Tetronimo()
+    # Piece = TetroO()
 
     # for i in range(1):
     while True:

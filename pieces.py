@@ -25,46 +25,40 @@ class Tetronimo(object):
         checklist = []
 
         for x, y in coordinates:
-            if direction == "left" and (x-1) >= MIN_X:
+            if direction == LEFT and (x-1) > MIN_X:
                 checklist.append(True)
-            elif direction == "right" and (x+1) <= MAX_X:
+            elif direction == RIGHT and (x+1) < MAX_X:
                 checklist.append(True)
-            elif direction == "down" and (y+1) <= MAX_Y:
+            elif direction == DOWN and (y+1) < MAX_Y:
                 checklist.append(True)
             # TODO Remove this later
-            elif direction == "up" and (y-1) >= MIN_Y:
+            elif direction == UP and (y-1) > MIN_Y:
                 checklist.append(True)
 
         return (len(checklist) == 4) and all(item == True for item in checklist)
             
     def move(self, direction):
         coordinates = self.get_coordinates()
+        new_state = [[0]*ARRAY_Y for i in range(ARRAY_X)]
 
-        if direction == "left":
-            for x, y in coordinates:
-                self.state[x][y] = 0
-                self.state[x-1][y] = 1
-        elif direction == "right":
-            # Reverse the array to go through coordinates right-to-left
-            # [::-1] ==> [start:stop:step]
-            for x, y in coordinates[::-1]:
-                self.state[x][y] = 0
-                self.state[x+1][y] = 1
-        elif direction == "down":
-            for x, y in coordinates:
-                self.state[x][y] = 0
-                self.state[x][y+1] = 1
-        # TODO Remove this later
-        elif direction == "up":
-            for x, y in coordinates:
-               self.state[x][y] = 0
-               self.state[x][y-1] = 1 
+        for x, y in coordinates:
+            if direction == LEFT:
+                    new_state[x-1][y] = 1
+            elif direction == RIGHT:
+                    new_state[x+1][y] = 1
+            elif direction == DOWN:
+                    new_state[x][y+1] = 1
+            # TODO Remove this later
+            elif direction == UP:
+                   new_state[x][y-1] = 1 
+                
+        self.state = new_state
 
     def has_finished(self, Game):
         coordinates = self.get_coordinates()
 
         # If the piece has reached the bottom
-        if any(y == MAX_Y for y in [y for x, y in coordinates]):
+        if any(y == (MAX_Y-1) for y in [y for x, y in coordinates]):
             return True
         # Elif the piece has fallen on top of other blocks
         elif any(Game.state[x][y+1] == 1 for x, y in coordinates):
