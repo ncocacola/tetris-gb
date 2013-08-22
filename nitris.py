@@ -13,26 +13,32 @@ from pieces import *
 from game import *
 from config import *
 
-def process_input(event):
+def process_input(event, block):
     # TODO do some refactoring and get rid of this 'global'
     global MOVE_TICKER
 
-    if (event.type == KEYDOWN):
-        if MOVE_TICKER == 0:
-            MOVE_TICKER = MOVE_TICKER_DEFAULT
+    if MOVE_TICKER == 0:
+        MOVE_TICKER = MOVE_TICKER_DEFAULT
+
+        # If a key was pressed, check that the piece can move
+        # in the specified direction, and move it accordingly
+        if (event.type == KEYDOWN):
             if event.key == pygame.K_LEFT:
-                return LEFT
+                if block.can_move(LEFT):
+                    block.move(LEFT)
             elif event.key == pygame.K_RIGHT:
-                return RIGHT
+                if block.can_move(RIGHT):
+                    block.move(RIGHT)
             elif event.key == pygame.K_DOWN:
-                return DOWN
-            # TODO Remove this later
+                if block.can_move(DOWN):
+                    block.move(DOWN)
             elif event.key == pygame.K_UP:
-                return UP
-    # else:
-    #     if MOVE_TICKER == 0:
-    #         MOVE_TICKER = MOVE_TICKER_DEFAULT
-    #         return "down"
+                block.rotate()
+        # Either way (at each turn), move the block down once
+        block.move(DOWN)
+
+    elif MOVE_TICKER > 0:
+        MOVE_TICKER -= 1
 
 def main():
     # TODO do some refactoring and get rid of this 'global'
@@ -53,25 +59,17 @@ def main():
     block = Block()
     # block = BlockO()
 
-    # for i in range(1):
     while True:
         # Lock the game at default fps
         clock.tick(FPS)
 
-        # Decrement MOVE_TICKER
-        if MOVE_TICKER > 0:
-            MOVE_TICKER -= 1
+        # Clear the screen
+        screen.fill(WHITE)
 
         # Process events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
-
-        # Clear the screen
-        screen.fill(WHITE)
-
-        # Process keyboard input
-        direction = process_input(event)
 
         # If the piece has reached the bottom or the top of the stack of pieces
         if block.has_finished(game):
@@ -79,13 +77,9 @@ def main():
             game.merge(block)
             # Spawn a new piece
             block = Block()
-        # Else, move the piece in the specified direction, if it can
-        elif block.can_move(direction) and direction is not UP:
-            block.move(direction)
-        # Else, rotate the piece
-        # elif block.can_rotate() and direction is UP:
-        elif direction is UP:
-            block.rotate()
+        # If not, process the keyboard input and move accordingly
+        else:
+            process_input(event, block)
 
         # Draw game to screen
         game.draw(screen)

@@ -90,7 +90,6 @@ class Block(object):
         # Convert current position to a 4*4 array
         # Transpose and mirror the array
         new_state = map(list, zip(*self.array()))[::-1]
-        print new_state
         new_tiles = []
 
         # Get translation factor
