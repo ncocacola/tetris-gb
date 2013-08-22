@@ -21,20 +21,10 @@ class Block(object):
     def __init__(self):
         self.tiles = [Tile(1, 1), Tile(2, 1), Tile(3, 1), Tile(4,1)]
     def __repr__(self):
-        # Zip an unzipped version of self.state (zip(*self.state))
-        # Apply the list() function to each resulting tuple to get a bunch of lists
-        transpose = map(list, zip(*self.get_state()))
-        return "\n".join(str(row) for row in transpose)
-        ## TODO Rewrite this to give you coordinates instead of state
-            # blabla = []
-            # for tile in block.tiles:
-            #     blabla.append((tile.x, tile.y))
-            # print blabla
-    def get_state(self):
-        state = [[0]*ARRAY_Y for i in range(ARRAY_X)]
+        coordinates = []
         for tile in self.tiles:
-            state[tile.x][tile.y] = 1
-        return state
+            coordinates.append((tile.x, tile.y))
+        return str(coordinates)
 
     def can_move(self, direction):
         # TODO Only checks that block stays in the game boundaries
@@ -95,7 +85,6 @@ class Block(object):
     def hard_drop(self, game):
         while not self.has_finished(game):
             self.move(DOWN)
-
     def has_finished(self, game):
         # If the block has reached the bottom
         if any(tile.y == MAX_Y for tile in self.tiles):
@@ -108,7 +97,6 @@ class Block(object):
         #        list(set([Tile(tile.x, (tile.y+1)) for tile in self.tiles]) & set(Game.tiles))
 
         return False
-
     def draw(self, surface):
         for tile in self.tiles:
             pygame.draw.rect(surface, RED, (CELL_W*tile.x, CELL_H*tile.y, CELL_W, CELL_H))
