@@ -88,7 +88,14 @@ def main():
         else:
             process_input(event, block, game)
 
-        # Draw game to screen
+        # Draw the game and block to the screen
+        game.draw(screen)
+        block.draw(screen)
+
+        # Process the lines
+        game.process_lines()
+
+        # Redraw game and block to the screen (smoother line deletion)
         game.draw(screen)
         block.draw(screen)
 
