@@ -25,6 +25,12 @@ class Block(object):
         # Apply the list() function to each resulting tuple to get a bunch of lists
         transpose = map(list, zip(*self.get_state()))
         return "\n".join(str(row) for row in transpose)
+        ## TODO Rewrite this to give you coordinates instead of state
+            # blabla = []
+            # for tile in block.tiles:
+            #     blabla.append((tile.x, tile.y))
+            # print blabla
+
     def get_state(self):
         state = [[0]*ARRAY_Y for i in range(ARRAY_X)]
         for tile in self.tiles:
@@ -48,7 +54,7 @@ class Block(object):
                 checklist.append(not (tile.x >= MAX_X))
             elif direction == DOWN:
                 checklist.append(not (tile.y >= MAX_Y))
-            elif direction == UP:
+            elif direction == UP:   # TODO change this to check you can rotate
                 checklist.append(not (tile.y <= MIN_Y))
 
         return (len(checklist) == 4) and all(item == True for item in checklist)
@@ -75,25 +81,42 @@ class Block(object):
         for tile in self.tiles:
             pygame.draw.rect(surface, RED, (CELL_W*tile.x, CELL_H*tile.y, CELL_W, CELL_H))
 
-    # def array(self):
-    #     state = [[0]*4 for i in range(4)]
-    #     for tile in self.tiles:
-    #         state[tile.x][tile.y] = 1
-    #     return state
+    # def can_rotate(self):
 
-    # def transpose(self):
-    #     return zip(*self.array())
+    def rotate(self):
+        ## TODO improve this to implement SRS
+        ## Can you get it to play with the Tiles directly?
+
+        # Convert current position to a 4*4 array
+        # Transpose and mirror the array
+        new_state = map(list, zip(*self.array()))[::-1]
+        print new_state
+        new_tiles = []
+
+        # Get translation factor
+        translation = (min([tile.x for tile in self.tiles]), min([tile.y for tile in self.tiles]))
+        # Convert back to tiles
+        for x in range(len(new_state)):
+            for y in range(len(new_state[x])):
+                if new_state[x][y] == 1:
+                    # Apply translation factor back
+                    new_tiles.append(Tile(x + translation[0], y + translation[1]))
+
+        # Apply the new Tiles to self.tiles
+        self.tiles = new_tiles
+
+    def array(self):
+        translation = (min([tile.x for tile in self.tiles]), min([tile.y for tile in self.tiles]))
+        state = [[0]*4 for i in range(4)]
+        for tile in self.tiles:
+            x = tile.x - translation[0]
+            y = tile.y - translation[1]
+            state[x][y] = 1
+        return state
 
 class BlockI(Block):
     def __init__(self):
         self.tiles = [Tile(1, 1), Tile(2, 1), Tile(3, 1), Tile(4, 1)]
-
-    def rotate(self):
-        if self.pointing == UP:
-            self.tiles = [Tile()]
-
-    # Take the matrix, transpose then mirror
-    # Try to do this on tiles directly
 
 class BlockO(Block):
     def __init__(self):

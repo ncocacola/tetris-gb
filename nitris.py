@@ -53,9 +53,6 @@ def main():
     block = Block()
     # block = BlockO()
 
-    # print block.array()
-    # print block.transpose()
-
     # for i in range(1):
     while True:
         # Lock the game at default fps
@@ -83,8 +80,12 @@ def main():
             # Spawn a new piece
             block = Block()
         # Else, move the piece in the specified direction, if it can
-        elif block.can_move(direction):
+        elif block.can_move(direction) and direction is not UP:
             block.move(direction)
+        # Else, rotate the piece
+        # elif block.can_rotate() and direction is UP:
+        elif direction is UP:
+            block.rotate()
 
         # Draw game to screen
         game.draw(screen)
