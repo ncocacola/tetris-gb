@@ -9,13 +9,17 @@ import sys
 import pygame
 from pygame.locals import *
 # Classes
-from pieces import *
 from game import *
+from block import *
 from config import *
 
-def process_input(event, block):
+def process_input(event, block, game):
     # TODO do some refactoring and get rid of this 'global'
     global MOVE_TICKER
+
+    if (event.type == KEYDOWN):
+        if event.key == pygame.K_SPACE:
+            block.hard_drop(game)
 
     if MOVE_TICKER == 0:
         MOVE_TICKER = MOVE_TICKER_DEFAULT
@@ -34,8 +38,11 @@ def process_input(event, block):
                     block.move(DOWN)
             elif event.key == pygame.K_UP:
                 block.rotate()
-        # Either way (at each turn), move the block down once
-        block.move(DOWN)
+            # elif event.key == pygame.K_SPACE:
+            #     block.hard_drop(game)
+        # Else, move the block down once
+        else:
+            block.move(DOWN)
 
     elif MOVE_TICKER > 0:
         MOVE_TICKER -= 1
@@ -79,7 +86,7 @@ def main():
             block = Block()
         # If not, process the keyboard input and move accordingly
         else:
-            process_input(event, block)
+            process_input(event, block, game)
 
         # Draw game to screen
         game.draw(screen)

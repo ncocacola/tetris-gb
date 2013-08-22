@@ -30,7 +30,6 @@ class Block(object):
             # for tile in block.tiles:
             #     blabla.append((tile.x, tile.y))
             # print blabla
-
     def get_state(self):
         state = [[0]*ARRAY_Y for i in range(ARRAY_X)]
         for tile in self.tiles:
@@ -58,31 +57,12 @@ class Block(object):
                 checklist.append(not (tile.y <= MIN_Y))
 
         return (len(checklist) == 4) and all(item == True for item in checklist)
-            
     def move(self, direction):
         for tile in self.tiles:
             tile.x += direction.dx
             tile.y += direction.dy
 
-    def has_finished(self, game):
-        # If the block has reached the bottom
-        if any(tile.y == MAX_Y for tile in self.tiles):
-            return True
-        # Elif the block has fallen on top of other blocks
-        elif list(set([Tile(tile.x, (tile.y+1)) for tile in self.tiles]) & set(game.tiles)):
-            return True
-
-        # return any(tile.y == MAX_Y for tile in self.tiles) or \
-        #        list(set([Tile(tile.x, (tile.y+1)) for tile in self.tiles]) & set(Game.tiles))
-
-        return False
-
-    def draw(self, surface):
-        for tile in self.tiles:
-            pygame.draw.rect(surface, RED, (CELL_W*tile.x, CELL_H*tile.y, CELL_W, CELL_H))
-
     # def can_rotate(self):
-
     def rotate(self):
         ## TODO improve this to implement SRS
         ## Can you get it to play with the Tiles directly?
@@ -103,7 +83,6 @@ class Block(object):
 
         # Apply the new Tiles to self.tiles
         self.tiles = new_tiles
-
     def array(self):
         translation = (min([tile.x for tile in self.tiles]), min([tile.y for tile in self.tiles]))
         state = [[0]*4 for i in range(4)]
@@ -112,6 +91,27 @@ class Block(object):
             y = tile.y - translation[1]
             state[x][y] = 1
         return state
+
+    def hard_drop(self, game):
+        while not self.has_finished(game):
+            self.move(DOWN)
+
+    def has_finished(self, game):
+        # If the block has reached the bottom
+        if any(tile.y == MAX_Y for tile in self.tiles):
+            return True
+        # Elif the block has fallen on top of other blocks
+        elif list(set([Tile(tile.x, (tile.y+1)) for tile in self.tiles]) & set(game.tiles)):
+            return True
+
+        # return any(tile.y == MAX_Y for tile in self.tiles) or \
+        #        list(set([Tile(tile.x, (tile.y+1)) for tile in self.tiles]) & set(Game.tiles))
+
+        return False
+
+    def draw(self, surface):
+        for tile in self.tiles:
+            pygame.draw.rect(surface, RED, (CELL_W*tile.x, CELL_H*tile.y, CELL_W, CELL_H))
 
 class BlockI(Block):
     def __init__(self):
