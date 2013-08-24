@@ -19,7 +19,7 @@ class Tile(object):
 
 class Block(object):
     def __init__(self):
-        self.tiles = [Tile(1, 1), Tile(2, 1), Tile(3, 1), Tile(4,1)]
+        self.tiles = []
         self.rotation = 0
     def __repr__(self):
         coordinates = []
@@ -27,6 +27,7 @@ class Block(object):
             coordinates.append((tile.x, tile.y))
         return str(coordinates)
 
+    # Rewrite this
     def can_move(self, direction):
         # TODO Only checks that block stays in the game boundaries
         # TODO Get it to check if other block are not obstructing

@@ -1,6 +1,7 @@
 import pygame
 from block import *
 from config import *
+from random import choice
 
 class Game(object):
     def __init__(self):
@@ -55,3 +56,6 @@ class Game(object):
         line_tiles = [tile for tile in self.tiles if tile.y == line]
         if len(line_tiles) == ARRAY_X:
             return line_tiles
+
+    def new_block(self):
+        return choice(Block.__subclasses__())()

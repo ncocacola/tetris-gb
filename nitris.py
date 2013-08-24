@@ -63,7 +63,7 @@ def main():
 
     # Create the Game
     game = Game()
-    block = Block()
+    block = game.new_block()
     # block = BlockO()
 
     while True:
@@ -83,7 +83,7 @@ def main():
             # Merge it with current game state
             game.merge(block)
             # Spawn a new piece
-            block = Block()
+            block = game.new_block()
         # If not, process the keyboard input and move accordingly
         else:
             process_input(event, block, game)
