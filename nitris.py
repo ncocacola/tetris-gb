@@ -93,7 +93,7 @@ def main():
         block.draw(screen)
 
         # Process the lines
-        game.process_lines()
+        game.remove_lines()
 
         # Redraw game and block to the screen (smoother line deletion)
         game.draw(screen)

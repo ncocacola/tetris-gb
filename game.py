@@ -1,7 +1,6 @@
-import pygame
+import pygame, random
 from block import *
 from config import *
-from random import choice
 
 class Game(object):
     def __init__(self):
@@ -9,6 +8,7 @@ class Game(object):
         self.level = 1
         self.lines = 0
         self.score = 0
+        self.bag = self.new_bag()
     def __repr__(self):
         # Zip an unzipped version of self.state (zip(*self.state))
         # Apply the list() function to each resulting tuple to get a bunch of lists
@@ -22,12 +22,11 @@ class Game(object):
 
     def merge(self, block):
         self.tiles += block.tiles
-
     def draw(self, surface):
         for tile in self.tiles:
             pygame.draw.rect(surface, BLUE, (CELL_W*tile.x, CELL_H*tile.y, CELL_W, CELL_H))
 
-    def process_lines(self):
+    def remove_lines(self):
         lines = []
         score = 0
 
@@ -51,11 +50,19 @@ class Game(object):
                     tile.y += DOWN.dy
 
         # Update the global score with the total
-        self.score += len(lines)
+        self.lines += len(lines)
     def is_full(self, line):
         line_tiles = [tile for tile in self.tiles if tile.y == line]
         if len(line_tiles) == ARRAY_X:
             return line_tiles
 
+    # Random Generator
+    # See http://tetris.wikia.com/wiki/Random_Generator
+    def new_bag(self):
+        bag = Block.__subclasses__()
+        random.shuffle(bag)
+        return bag
     def new_block(self):
-        return choice(Block.__subclasses__())()
+        if not self.bag:
+            self.bag = self.new_bag()
+        return (self.bag.pop())()
