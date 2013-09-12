@@ -9,11 +9,27 @@ class Direction(object):
     def __str__(self):
         return self.name
 
+class BlockType(object):
+    def __init__(self, name, image):
+        self.name = name
+        self.image = image
+    def __str__(self):
+        return self.name
+
 # Directions (NB: Board is upside down: Down ==> Add, Up ==> Substract)
 LEFT = Direction("left", -1, 0)
 RIGHT = Direction("right", 1, 0)
 DOWN = Direction("down", 0, 1)
-UP = Direction("up", 0, -1)         # TODO Remove this later
+
+# BlockTypes
+## Use os.path.join instead
+I = BlockType("I", "./blocks/I.png")
+J = BlockType("J", "./blocks/J.png")
+L = BlockType("L", "./blocks/L.png")
+O = BlockType("O", "./blocks/O.png")
+S = BlockType("S", "./blocks/S.png")
+T = BlockType("T", "./blocks/T.png")
+Z = BlockType("Z", "./blocks/Z.png")
 
 # Colours
 BLACK = (  0,   0,   0)

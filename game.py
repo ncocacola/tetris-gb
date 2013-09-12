@@ -20,11 +20,11 @@ class Game(object):
             state[tile.x][tile.y] = 1
         return state
 
-    def merge(self, block):
-        self.tiles += block.tiles
     def draw(self, surface):
         for tile in self.tiles:
-            pygame.draw.rect(surface, BLUE, (CELL_W*tile.x, CELL_H*tile.y, CELL_W, CELL_H))
+            tile.draw(surface)
+    def merge(self, block):
+        self.tiles += block.tiles
 
     def remove_lines(self):
         lines = []

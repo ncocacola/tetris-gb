@@ -18,8 +18,7 @@ def process_quit():
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
-        pygame.event.post(event) #return the event if not quitting
-    # Add exit with ESC/Q            
+        pygame.event.post(event) # Return the event if not quitting
 
 def process_input(block, game, lastEventTime):
     for event in pygame.event.get():
