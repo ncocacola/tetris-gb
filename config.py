@@ -38,3 +38,8 @@ FPS = 50
 ## TODO MOVE_TICKER should not be capital as it varies
 MOVE_TICKER = 0
 MOVE_TICKER_DEFAULT = 10 # Allow a move every 10 frames = every 0.2 second
+
+# Gameplay speeds
+SOFTDROPSPEED = 0.08
+LATERALSPEED = 0.15
+DEFAULTFALLSPEED = 1

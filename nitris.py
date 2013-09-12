@@ -4,7 +4,7 @@
 ## http://stackoverflow.com/questions/1969005/enumerations-in-python (Objects with functionality)
 
 # Useful modules
-import sys
+import sys, time
 # PyGame
 import pygame
 from pygame.locals import *
@@ -13,21 +13,23 @@ from game import *
 from block import *
 from config import *
 
-def process_input(event, block, game):
-    # TODO do some refactoring and get rid of this 'global'
-    global MOVE_TICKER
 
-    if (event.type == KEYDOWN):
-        if event.key == pygame.K_SPACE:
-            block.hard_drop(game)
+# Keyboard stuff: https://github.com/acchao/tetromino_andrew/
 
-    if MOVE_TICKER == 0:
-        MOVE_TICKER = MOVE_TICKER_DEFAULT
+def process_quit():
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            sys.exit()
+        pygame.event.post(event) #return the event if not quitting
+    # Add exit with ESC/Q            
 
-        # If a key was pressed, check that the piece can move
-        # in the specified direction, and move it accordingly
-        if (event.type == KEYDOWN):
-            if event.key == pygame.K_LEFT:
+def process_input(block, game, lastEventTime):
+    for event in pygame.event.get():
+        print event
+        if (event.type == pygame.KEYDOWN):
+            if (event.key == pygame.K_SPACE):
+                block.hard_drop(game)
+            elif (event.key == pygame.K_LEFT):
                 if block.can_move(LEFT):
                     block.move(LEFT)
             elif event.key == pygame.K_RIGHT:
@@ -38,14 +40,9 @@ def process_input(event, block, game):
                     block.move(DOWN)
             elif event.key == pygame.K_UP:
                 block.rotate()
-            # elif event.key == pygame.K_SPACE:
-            #     block.hard_drop(game)
-        # Else, move the block down once
-        else:
-            block.move(DOWN)
+            lastEventTime = time.time()
 
-    elif MOVE_TICKER > 0:
-        MOVE_TICKER -= 1
+    return lastEventTime
 
 def main():
     # TODO do some refactoring and get rid of this 'global'
@@ -66,17 +63,19 @@ def main():
     block = game.new_block()
     # block = BlockO()
 
+    lastEventTime = time.time()
+    lastDropTime = time.time()
+
     while True:
+
         # Lock the game at default fps
         clock.tick(FPS)
 
         # Clear the screen
         screen.fill(WHITE)
 
-        # Process events
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                sys.exit()
+        # Check if the user wants to quit
+        process_quit()
 
         # If the piece has reached the bottom or the top of the stack of pieces
         if block.has_finished(game):
@@ -85,8 +84,11 @@ def main():
             # Spawn a new piece
             block = game.new_block()
         # If not, process the keyboard input and move accordingly
-        else:
-            process_input(event, block, game)
+        elif (time.time() - lastDropTime > DEFAULTFALLSPEED):
+            block.move(DOWN)
+            lastDropTime = time.time()
+
+        lastEventTime = process_input(block, game, lastEventTime)
 
         # Draw the game and block to the screen
         game.draw(screen)
@@ -100,7 +102,8 @@ def main():
         block.draw(screen)
 
         # Update the screen
-        pygame.display.flip()
+        # pygame.display.flip()
+        pygame.display.update()
 
 if __name__ == "__main__":
     main()
