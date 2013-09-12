@@ -1,5 +1,6 @@
-import pygame
+import copy, pygame
 from config import *
+from nitris import *
 
 class Tile(object):
     def __init__(self, x, y):
@@ -27,55 +28,35 @@ class Block(object):
             coordinates.append((tile.x, tile.y))
         return str(coordinates)
 
-    # Rewrite this
-    def can_move(self, direction):
-        # TODO Only checks that block stays in the game boundaries
-        # TODO Get it to check if other block are not obstructing
-        # e.g. if you try to hit a block sideways
+    # Simulate the move, check if it's valid
+    def can_move(self, game, direction):
+        moved_block = copy.deepcopy(self)
+        moved_block.move(direction)
+        return moved_block.is_valid(game)
+    def can_rotate(self, game):
+        rotated_block = copy.deepcopy(self)
+        rotated_block.rotate()
+        return rotated_block.is_valid(game)
 
-        ## TODO rewrite this as such
-            # If I move r/l/u/d, do I intersect with any tiles from game?
-                # or hit a wall?
-        checklist = []
-
-        for tile in self.tiles:
-            if direction == LEFT:
-                checklist.append(not (tile.x <= MIN_X))
-            elif direction == RIGHT:
-                checklist.append(not (tile.x >= MAX_X))
-            elif direction == DOWN:
-                checklist.append(not (tile.y >= MAX_Y))
-            elif direction == UP:   # TODO change this to check you can rotate
-                checklist.append(not (tile.y <= MIN_Y))
-
-        return (len(checklist) == 4) and all(item == True for item in checklist)
     def move(self, direction):
         for tile in self.tiles:
             tile.x += direction.dx
             tile.y += direction.dy
 
-    # def can_rotate(self):
-
     def hard_drop(self, game):
-        while not self.has_finished(game):
+        while self.can_move(game, DOWN):
             self.move(DOWN)
-    def has_finished(self, game):
-        # If the block has reached the bottom
-        if any(tile.y == MAX_Y for tile in self.tiles):
-            return True
-        # Elif the block has fallen on top of other blocks
-        elif list(set([Tile(tile.x, (tile.y+1)) for tile in self.tiles]) & set(game.tiles)):
-            return True
 
-        # return any(tile.y == MAX_Y for tile in self.tiles) or \
-        #        list(set([Tile(tile.x, (tile.y+1)) for tile in self.tiles]) & set(Game.tiles))
+    def is_valid(self, game):
+        return (self.is_in_bounds() and not(self.has_conflicts(game)))
 
-        return False
-    # def draw(self, surface):
-    #     for tile in self.tiles:
-    #         block = pygame.image.load("./blocks/o.png")    # Use os.path.join instead
-    #         surface.blit(block, (CELL_W*tile.x, CELL_H*tile.y))
-    #         # pygame.draw.rect(surface, RED, (CELL_W*tile.x, CELL_H*tile.y, CELL_W, CELL_H))
+    def is_in_bounds(self):
+        x_bounds = [(MIN_X <= tile.x <= MAX_X) for tile in self.tiles]
+        y_bounds = [(MIN_Y <= tile.y <= MAX_Y) for tile in self.tiles]
+        return not ((any(test == False for test in x_bounds) 
+            or any(test == False for test in y_bounds)))
+    def has_conflicts(self, game):
+        return set(self.tiles).intersection(set(game.tiles))
 
 # The 'central' tile is always the first element of the list of tiles
 # See http://tetris.wikia.com/wiki/SRS
@@ -85,7 +66,6 @@ class BlockI(Block):
         self.rotation = 0
 
     def rotate(self):
-        print self.rotation
         if self.rotation == 0:
             x, y = self.tiles[0].x+2, self.tiles[0].y-1
             self.tiles = [Tile(x, y), Tile(x, y+1), Tile(x, y+2), Tile(x, y+3)]

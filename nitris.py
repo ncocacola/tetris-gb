@@ -2,6 +2,7 @@
 
 ## http://tetris.wikia.com/wiki/Tetris_Guideline
 ## http://stackoverflow.com/questions/1969005/enumerations-in-python (Objects with functionality)
+## Keyboard stuff: https://github.com/acchao/tetromino_andrew/
 
 # Useful modules
 import sys, time
@@ -12,9 +13,6 @@ from pygame.locals import *
 from game import *
 from block import *
 from config import *
-
-
-# Keyboard stuff: https://github.com/acchao/tetromino_andrew/
 
 def process_quit():
     for event in pygame.event.get():
@@ -28,25 +26,24 @@ def process_input(block, game, lastEventTime):
         if (event.type == pygame.KEYDOWN):
             if (event.key == pygame.K_SPACE):
                 block.hard_drop(game)
+            elif event.key == pygame.K_UP:
+                if block.can_rotate(game):
+                    block.rotate()
             elif (event.key == pygame.K_LEFT):
-                if block.can_move(LEFT):
+                if block.can_move(game, LEFT):
                     block.move(LEFT)
             elif event.key == pygame.K_RIGHT:
-                if block.can_move(RIGHT):
+                if block.can_move(game, RIGHT):
                     block.move(RIGHT)
             elif event.key == pygame.K_DOWN:
-                if block.can_move(DOWN):
+                if block.can_move(game, DOWN):
                     block.move(DOWN)
-            elif event.key == pygame.K_UP:
-                block.rotate()
+
             lastEventTime = time.time()
 
     return lastEventTime
 
 def main():
-    # TODO do some refactoring and get rid of this 'global'
-    global MOVE_TICKER
-
     # Initialise the game engine
     pygame.init()
     
@@ -61,7 +58,6 @@ def main():
     # Create the Game
     game = Game()
     block = game.new_block()
-    # block = BlockO()
 
     lastEventTime = time.time()
     lastDropTime = time.time()
@@ -77,13 +73,11 @@ def main():
         # Check if the user wants to quit
         process_quit()
 
-        # If the piece has reached the bottom or the top of the stack of pieces
-        if block.has_finished(game):
-            # Merge it with current game state
+        # If the piece cannot move anymore, merge and generate a new one
+        if (not block.can_move(game, DOWN)):
             game.merge(block)
-            # Spawn a new piece
             block = game.new_block()
-        # If not, process the keyboard input and move accordingly
+        # Else, process the keyboard input and move accordingly
         elif (time.time() - lastDropTime > DEFAULTFALLSPEED):
             block.move(DOWN)
             lastDropTime = time.time()
@@ -102,8 +96,6 @@ def main():
         block.draw(screen)
 
         # Update the screen
-        # pygame.display.flip()
-        # display.blit(screen, (G_X_POSITION, G_Y_POSITION))
         window.blit(screen, (40, 0))
         pygame.display.update()
 
