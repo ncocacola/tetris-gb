@@ -1,6 +1,6 @@
 ## GLOBAL VARIABLES
 
-import pygame
+import os, pygame
 
 # Useful classes
 class Direction(object):
@@ -18,6 +18,10 @@ class BlockType(object):
     def __str__(self):
         return self.name
 
+# Directories
+ASSETS_DIR = os.path.join(".", "assets")
+BLOCKS_DIR = os.path.join(ASSETS_DIR, "blocks")
+
 # Directions (NB: Board is upside down: Down ==> Add, Up ==> Substract)
 LEFT = Direction("left", -1, 0)
 RIGHT = Direction("right", 1, 0)
@@ -25,13 +29,13 @@ DOWN = Direction("down", 0, 1)
 
 # BlockTypes
 ## Use os.path.join instead
-I = BlockType("I", "./blocks/I.png")
-J = BlockType("J", "./blocks/J.png")
-L = BlockType("L", "./blocks/L.png")
-O = BlockType("O", "./blocks/O.png")
-S = BlockType("S", "./blocks/S.png")
-T = BlockType("T", "./blocks/T.png")
-Z = BlockType("Z", "./blocks/Z.png")
+I = BlockType("I", os.path.join(BLOCKS_DIR, "I.png"))
+J = BlockType("J", os.path.join(BLOCKS_DIR, "J.png"))
+L = BlockType("L", os.path.join(BLOCKS_DIR, "L.png"))
+O = BlockType("O", os.path.join(BLOCKS_DIR, "O.png"))
+S = BlockType("S", os.path.join(BLOCKS_DIR, "S.png"))
+T = BlockType("T", os.path.join(BLOCKS_DIR, "T.png"))
+Z = BlockType("Z", os.path.join(BLOCKS_DIR, "Z.png"))
 
 # Colours
 BLACK = (  0,   0,   0)

@@ -48,7 +48,21 @@ def main():
     
     # Create window
     window = pygame.display.set_mode(W_SIZE)
-    pygame.display.set_caption("Tetris")
+    # Draw sidebar
+    sidebar = pygame.image.load(os.path.join(ASSETS_DIR, "sidebar.png"))
+    window.blit(sidebar, (20, 0))
+    window.blit(sidebar, (240, 0))
+    pygame.draw.line(window, (247, 247, 247), (18, 0), (18, 400), 3)
+    pygame.draw.line(window, (247, 247, 247), (261, 0), (261, 400), 3)
+    # Draw box under score
+    pygame.draw.rect(window, (96, 96, 96), (263, 40, 137, 17))
+    pygame.draw.line(window, (247, 247, 247), (263, 38), (400, 38), 3)
+    pygame.draw.line(window, (247, 247, 247), (263, 58), (400, 58), 3)
+    # Draw score, level, lines, queue // initialise them to 0 or next block
+    ###
+    ###
+
+    pygame.display.set_caption("nitris")
     screen = pygame.Surface(G_SIZE)
 
     # Create clock
@@ -62,7 +76,6 @@ def main():
     lastDropTime = time.time()
 
     while True:
-
         # Lock the game at default fps
         clock.tick(FPS)
 
@@ -93,6 +106,9 @@ def main():
         # Redraw game and block to the screen (smoother line deletion)
         game.draw(screen)
         block.draw(screen)
+
+        # Update score, level, lines, next piece
+        # info.update()
 
         # Update the screen
         window.blit(screen, (40, 0))
