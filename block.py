@@ -71,9 +71,11 @@ class Block(object):
         #        list(set([Tile(tile.x, (tile.y+1)) for tile in self.tiles]) & set(Game.tiles))
 
         return False
-    def draw(self, surface):
-        for tile in self.tiles:
-            pygame.draw.rect(surface, RED, (CELL_W*tile.x, CELL_H*tile.y, CELL_W, CELL_H))
+    # def draw(self, surface):
+    #     for tile in self.tiles:
+    #         block = pygame.image.load("./blocks/o.png")    # Use os.path.join instead
+    #         surface.blit(block, (CELL_W*tile.x, CELL_H*tile.y))
+    #         # pygame.draw.rect(surface, RED, (CELL_W*tile.x, CELL_H*tile.y, CELL_W, CELL_H))
 
 # The 'central' tile is always the first element of the list of tiles
 # See http://tetris.wikia.com/wiki/SRS
@@ -100,6 +102,11 @@ class BlockI(Block):
             x, y = self.tiles[0].x-1, self.tiles[0].y+1
             self.tiles = [Tile(x, y), Tile(x+1, y), Tile(x+2, y), Tile(x+3, y)]
             self.rotation = 0
+
+    def draw(self, surface):
+        for tile in self.tiles:
+            block = pygame.image.load("./blocks/i.png")    # Use os.path.join instead
+            surface.blit(block, (CELL_W*tile.x, CELL_H*tile.y))
 class BlockO(Block):
     def __init__(self):
         self.tiles = [Tile(1, 1), Tile(1, 2), Tile(2, 1), Tile(2, 2)]
@@ -107,6 +114,11 @@ class BlockO(Block):
 
     def rotate(self):
         pass
+
+    def draw(self, surface):
+        for tile in self.tiles:
+            block = pygame.image.load("./blocks/o.png")    # Use os.path.join instead
+            surface.blit(block, (CELL_W*tile.x, CELL_H*tile.y))
 class BlockT(Block):
     def __init__(self):
         self.tiles = [Tile(2, 2), Tile(1, 2), Tile(2, 1), Tile(3, 2)]
@@ -126,6 +138,11 @@ class BlockT(Block):
         elif self.rotation == 3:
             self.tiles = [Tile(x, y), Tile(x-1, y), Tile(x+1, y), Tile(x, y-1)]
             self.rotation = 0
+
+    def draw(self, surface):
+        for tile in self.tiles:
+            block = pygame.image.load("./blocks/t.png")    # Use os.path.join instead
+            surface.blit(block, (CELL_W*tile.x, CELL_H*tile.y))
 class BlockS(Block):
     def __init__(self):
         self.tiles = [Tile(2, 2), Tile(1, 2), Tile(2, 1), Tile(3, 1)]
@@ -145,6 +162,11 @@ class BlockS(Block):
         elif self.rotation == 3:
             self.tiles = [Tile(x, y), Tile(x-1, y), Tile(x, y-1), Tile(x+1, y-1)]
             self.rotation = 0
+
+    def draw(self, surface):
+        for tile in self.tiles:
+            block = pygame.image.load("./blocks/s.png")    # Use os.path.join instead
+            surface.blit(block, (CELL_W*tile.x, CELL_H*tile.y))
 class BlockZ(Block):
     def __init__(self):
         self.tiles = [Tile(2, 2), Tile(1, 1), Tile(2, 1), Tile(3, 2)]
@@ -164,6 +186,11 @@ class BlockZ(Block):
         elif self.rotation == 3:
             self.tiles = [Tile(x, y), Tile(x+1, y), Tile(x, y-1), Tile(x-1, y-1)]
             self.rotation = 0
+
+    def draw(self, surface):
+        for tile in self.tiles:
+            block = pygame.image.load("./blocks/z.png")    # Use os.path.join instead
+            surface.blit(block, (CELL_W*tile.x, CELL_H*tile.y))
 class BlockJ(Block):
     def __init__(self):
         self.tiles = [Tile(2, 2), Tile(1, 1), Tile(1, 2), Tile(3, 2)]
@@ -183,6 +210,11 @@ class BlockJ(Block):
         elif self.rotation == 3:
             self.tiles = [Tile(x, y), Tile(x+1, y), Tile(x-1, y), Tile(x-1, y-1)]
             self.rotation = 0
+
+    def draw(self, surface):
+        for tile in self.tiles:
+            block = pygame.image.load("./blocks/j.png")    # Use os.path.join instead
+            surface.blit(block, (CELL_W*tile.x, CELL_H*tile.y))
 class BlockL(Block):
     def __init__(self):
         self.tiles = [Tile(2, 2), Tile(1, 2), Tile(3, 2), Tile(3, 1)]
@@ -202,3 +234,9 @@ class BlockL(Block):
         elif self.rotation == 3:
             self.tiles = [Tile(x, y), Tile(x+1, y), Tile(x-1, y), Tile(x+1, y-1)]
             self.rotation = 0
+
+    def draw(self, surface):
+        for tile in self.tiles:
+            block = pygame.image.load("./blocks/l.png")    # Use os.path.join instead
+            surface.blit(block, (CELL_W*tile.x, CELL_H*tile.y))
+

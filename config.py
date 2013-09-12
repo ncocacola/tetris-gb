@@ -23,11 +23,14 @@ GREEN = (  0, 255,   0)
 RED   = (255,   0,   0)
 
 # Window size
-WIDTH, HEIGHT = 200, 400
+W_WIDTH, W_HEIGHT = 400, 400            # Remove two rows at the end (they should be hidden)
+WIDTH, HEIGHT = 200, 400                # Rename these
+G_X_POSITION, G_Y_POSITION = 40, 0      # w.r.t to the main window
 CELL_W, CELL_H = WIDTH/10, HEIGHT/20
-ARRAY_X, ARRAY_Y = WIDTH/20, HEIGHT/20
-W_SIZE   = (WIDTH, HEIGHT)
-W_CENTER = (WIDTH/2, HEIGHT/2)
+ARRAY_X, ARRAY_Y = 10, 20
+W_SIZE   = (W_WIDTH, W_HEIGHT)
+G_SIZE   = (WIDTH, HEIGHT)
+W_CENTER = (W_WIDTH/2, W_HEIGHT/2)
 MIN_X, MAX_X, MIN_Y, MAX_Y = 0, ARRAY_X-1, 0, ARRAY_Y-1
 
 # Frames per second

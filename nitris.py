@@ -25,7 +25,6 @@ def process_quit():
 
 def process_input(block, game, lastEventTime):
     for event in pygame.event.get():
-        print event
         if (event.type == pygame.KEYDOWN):
             if (event.key == pygame.K_SPACE):
                 block.hard_drop(game)
@@ -52,8 +51,9 @@ def main():
     pygame.init()
     
     # Create window
-    screen = pygame.display.set_mode(W_SIZE)
+    window = pygame.display.set_mode(W_SIZE)
     pygame.display.set_caption("Tetris")
+    screen = pygame.Surface(G_SIZE)
 
     # Create clock
     clock = pygame.time.Clock()
@@ -103,6 +103,8 @@ def main():
 
         # Update the screen
         # pygame.display.flip()
+        # display.blit(screen, (G_X_POSITION, G_Y_POSITION))
+        window.blit(screen, (40, 0))
         pygame.display.update()
 
 if __name__ == "__main__":
