@@ -1,5 +1,7 @@
 ## GLOBAL VARIABLES
 
+import pygame
+
 # Useful classes
 class Direction(object):
     def __init__(self, name, dx, dy):
@@ -12,7 +14,7 @@ class Direction(object):
 class BlockType(object):
     def __init__(self, name, image):
         self.name = name
-        self.image = image
+        self.image = pygame.image.load(image)
     def __str__(self):
         return self.name
 

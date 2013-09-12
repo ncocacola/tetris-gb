@@ -17,8 +17,7 @@ class Tile(object):
         return hash(self.__repr__())
 
     def draw(self, surface):
-        image = pygame.image.load(self.block.image)
-        surface.blit(image, (CELL_W*self.x, CELL_H*self.y))  
+        surface.blit(self.block.image, (CELL_W*self.x, CELL_H*self.y))
 
 class Block(object):
     def __init__(self):
