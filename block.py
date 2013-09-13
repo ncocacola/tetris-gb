@@ -23,13 +23,15 @@ class Block(object):
     def __init__(self):
         self.create_tiles()
         self.rotation = 0
-        self.hard_drop = False
+        self.hard_drop = 0
+        self.soft_drop = 0
     def __repr__(self):
         coordinates = []
         for tile in self.tiles:
             coordinates.append((tile.x, tile.y))
         return str(coordinates)
 
+    # Graphic stuff
     def draw(self, surface):
         for tile in self.tiles:
             tile.draw(surface)
@@ -63,7 +65,7 @@ class Block(object):
     def drop_hard(self, game):
         while self.can_move(game, DOWN):
             self.move(DOWN)
-        self.hard_drop = True
+            self.hard_drop += 2
 
 # The 'central' tile is always the first element of the list of tiles
 # See http://tetris.wikia.com/wiki/SRS

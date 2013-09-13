@@ -9,6 +9,11 @@ class Game(object):
         self.lines = 0
         self.score = 0
         self.bag = self.new_bag()
+
+        # Timers
+        self.last_event = time.time()
+        self.last_drop = time.time()
+
     def __repr__(self):
         # Zip an unzipped version of self.state (zip(*self.state))
         # Apply the list() function to each resulting tuple to get a bunch of lists
@@ -20,15 +25,16 @@ class Game(object):
             state[tile.x][tile.y] = 1
         return state
 
+    # Graphic stuff
     def draw(self, surface):
         for tile in self.tiles:
             tile.draw(surface)
     def merge(self, block):
         self.tiles += block.tiles
 
+    # Logic-ish stuff
     def remove_lines(self):
         lines = []
-        score = 0
 
         # For each line
         for line in range(ARRAY_Y):
@@ -49,20 +55,20 @@ class Game(object):
                     # Move them down one notch
                     tile.y += DOWN.dy
 
-        # Update the global score with the total
-        if len(lines) > 0:
-            self.lines += len(lines)
-            self.score += self.level.points[len(lines)]
-            if self.lines >= (self.level.n + 1)*10:
-                self.level = Level(self.level.n + 1)
-
+        # Return how many lines you removed
+        return len(lines)
     def is_full(self, line):
         line_tiles = [tile for tile in self.tiles if tile.y == line]
         if len(line_tiles) == ARRAY_X:
             return line_tiles
+    def update_info(self, lines):
+        if lines > 0:
+            self.lines += lines
+            self.score += self.level.points[lines]
+            if self.lines >= (self.level.n + 1)*10:
+                self.level = Level(self.level.n + 1)
 
-    # Random Generator
-    # See http://tetris.wikia.com/wiki/Random_Generator
+    # Random Generator (http://tetris.wikia.com/wiki/Random_Generator)
     def new_bag(self):
         bag = Block.__subclasses__()
         random.shuffle(bag)
@@ -71,6 +77,42 @@ class Game(object):
         if not self.bag:
             self.bag = self.new_bag()
         return (self.bag.pop())()
+
+    # Keyboard stuff (https://github.com/acchao/tetromino_andrew/)
+    def process_quit(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+            # Return the event if not quitting
+            pygame.event.post(event) 
+    def process_input(self, block):
+        # Discrete key presses
+        for event in pygame.event.get():
+            if (event.type == pygame.KEYDOWN):
+                if (event.key == pygame.K_SPACE):
+                    block.drop_hard(self)
+                elif event.key == pygame.K_UP:
+                    if block.can_rotate(self):
+                        block.rotate()
+                elif (event.key == pygame.K_LEFT):
+                    if block.can_move(self, LEFT):
+                        block.move(LEFT)
+                elif event.key == pygame.K_RIGHT:
+                    if block.can_move(self, RIGHT):
+                        block.move(RIGHT)
+                elif event.key == pygame.K_DOWN:
+                    if block.can_move(self, DOWN):
+                        block.move(DOWN)
+                self.last_event = time.time()
+                break
+        # Continuous key presses
+        keystate = pygame.key.get_pressed()
+        if keystate[K_DOWN]:
+            if time.time() - self.last_event >= SOFT_DROP_SPEED:
+                if block.can_move(self, DOWN):
+                    block.move(DOWN)
+                block.soft_drop += 1
+                self.last_event = time.time()
 
     # Getter for information
     def get_info(self):
