@@ -39,10 +39,13 @@ Z = BlockType("Z", os.path.join(BLOCKS_DIR, "Z.png"))
 
 # Colours
 BLACK = (  0,   0,   0)
+# BLACK = (53, 53, 53)
 WHITE = (255, 255, 255)
+# WHITE = (248, 248, 248)
 BLUE  = (  0,   0, 255)
 GREEN = (  0, 255,   0)
 RED   = (255,   0,   0)
+GREY   = (96, 96, 96)
 
 # Window size
 W_WIDTH, W_HEIGHT = 400, 400            # Remove two rows at the end (they should be hidden)
@@ -68,3 +71,8 @@ MOVE_TICKER_DEFAULT = 10 # Allow a move every 10 frames = every 0.2 second
 SOFTDROPSPEED = 0.08
 LATERALSPEED = 0.15
 DEFAULTFALLSPEED = 1
+
+# Font
+pygame.font.init()
+font = pygame.font.Font("./assets/fonts/tetris-gb.ttf", 20)
+
