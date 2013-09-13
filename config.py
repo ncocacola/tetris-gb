@@ -18,6 +18,17 @@ class BlockType(object):
     def __str__(self):
         return self.name
 
+class Level(object):
+    def __init__(self, n):
+        if 0 <= n <= 20:
+            self.n = n
+        elif n > 0:
+            self.n = 20
+        self.fall_speed = FPR[self.n]/FPS
+        self.points = map(lambda x: x*(self.n + 1), [0, 40, 100, 300, 1200])
+    def __str__(self):
+        return str(self.n)
+
 # Directories
 ASSETS_DIR = os.path.join(".", "assets")
 BLOCKS_DIR = os.path.join(ASSETS_DIR, "blocks")
@@ -58,8 +69,9 @@ G_SIZE   = (WIDTH, HEIGHT)
 W_CENTER = (W_WIDTH/2, W_HEIGHT/2)
 MIN_X, MAX_X, MIN_Y, MAX_Y = 0, ARRAY_X-1, 0, ARRAY_Y-1
 
-# Frames per second
-FPS = 50
+# Frames per second/Frames per row
+FPS = 59.37
+FPR = [53, 49, 45, 41, 37, 33, 28, 22, 17, 11, 10, 9, 8, 7, 6, 5, 5, 4, 4, 3] 
 
 # Move ticker
 ## http://stackoverflow.com/questions/16044229/how-to-get-keyboard-input-in-pygame
@@ -71,6 +83,8 @@ MOVE_TICKER_DEFAULT = 10 # Allow a move every 10 frames = every 0.2 second
 SOFTDROPSPEED = 0.08
 LATERALSPEED = 0.15
 DEFAULTFALLSPEED = 1
+
+LOCK_DELAY = 0.5
 
 # Font
 pygame.font.init()

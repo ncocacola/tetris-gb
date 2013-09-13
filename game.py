@@ -5,7 +5,7 @@ from config import *
 class Game(object):
     def __init__(self):
         self.tiles = []
-        self.level = 0
+        self.level = Level(0)
         self.lines = 0
         self.score = 0
         self.bag = self.new_bag()
@@ -50,7 +50,12 @@ class Game(object):
                     tile.y += DOWN.dy
 
         # Update the global score with the total
-        self.lines += len(lines)
+        if len(lines) > 0:
+            self.lines += len(lines)
+            self.score += self.level.points[len(lines)]
+            if self.lines >= (self.level.n + 1)*10:
+                self.level = Level(self.level.n + 1)
+
     def is_full(self, line):
         line_tiles = [tile for tile in self.tiles if tile.y == line]
         if len(line_tiles) == ARRAY_X:

@@ -24,7 +24,7 @@ def process_input(block, game, lastEventTime):
     for event in pygame.event.get():
         if (event.type == pygame.KEYDOWN):
             if (event.key == pygame.K_SPACE):
-                block.hard_drop(game)
+                block.drop_hard(game)
             elif event.key == pygame.K_UP:
                 if block.can_rotate(game):
                     block.rotate()
@@ -91,9 +91,6 @@ def main():
     pygame.draw.line(window, WHITE, (263, 38), (400, 38), 3)
     pygame.draw.rect(window, GREY, (263, 40, 137, 17))
     pygame.draw.line(window, WHITE, (263, 58), (400, 58), 3)
-    # Draw box score
-    pygame.draw.rect(window, WHITE, (263, 62, 138, 24))
-    pygame.draw.line(window, WHITE, (263, 89), (400, 89), 3)
 
     # Create game surface
     screen = pygame.Surface(G_SIZE)
@@ -103,10 +100,11 @@ def main():
 
     # Create the Game
     game = Game()
-    block = game.new_block()
+    # block = game.new_block()
+    block = BlockI()
 
-    lastEventTime = time.time()
-    lastDropTime = time.time()
+    last_event = time.time()
+    last_drop = time.time()
 
     while True:
         # Lock the game at default fps
@@ -118,16 +116,20 @@ def main():
         # Check if the user wants to quit
         process_quit()
 
+        ### THIS WORKS BUT MAKE SURE YOU UNDERSTAND WHY
+        ### MAKE SURE FOLLOWS GUIDELINES
+        ### MAKE SURE YOU HAVE THE CORRECT DELAY
         # If the piece cannot move anymore, merge and generate a new one
         if (not block.can_move(game, DOWN)):
-            game.merge(block)
-            block = game.new_block()
+            if (block.hard_drop) or (time.time()-last_event > LOCK_DELAY):
+                game.merge(block)
+                block = game.new_block()
         # Else, process the keyboard input and move accordingly
-        elif (time.time() - lastDropTime > DEFAULTFALLSPEED):
+        elif ((block.can_move(game, DOWN)) and (time.time() - last_drop > game.level.fall_speed)):
             block.move(DOWN)
-            lastDropTime = time.time()
+            last_drop = time.time()
 
-        lastEventTime = process_input(block, game, lastEventTime)
+        last_event = process_input(block, game, last_event)
 
         # Draw the game and block to the screen
         game.draw(screen)
@@ -146,6 +148,9 @@ def main():
         level = draw_box(window, (276, 116, 112, 55))
         lines = draw_box(window, (276, 176, 112, 55))
         queue = draw_box(window, (276, 251, 112, 112))
+        # Draw score box
+        pygame.draw.rect(window, WHITE, (263, 62, 138, 24))
+        pygame.draw.line(window, WHITE, (263, 89), (400, 89), 3)
         ### Text
         window.blit(font.render("score", 1, BLACK), score)
         window.blit(font.render("level", 1, BLACK), level)
