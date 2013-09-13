@@ -5,7 +5,7 @@ from config import *
 class Game(object):
     def __init__(self):
         self.tiles = []
-        self.level = 1
+        self.level = 0
         self.lines = 0
         self.score = 0
         self.bag = self.new_bag()
@@ -66,3 +66,7 @@ class Game(object):
         if not self.bag:
             self.bag = self.new_bag()
         return (self.bag.pop())()
+
+    # Getter for information
+    def get_info(self):
+        return (self.score, self.level, self.lines)

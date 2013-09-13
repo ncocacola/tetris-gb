@@ -42,6 +42,37 @@ def process_input(block, game, lastEventTime):
 
     return lastEventTime
 
+def draw_box(window, (wx, wy, ww, wh)):
+    t = 3                               # 'Thickness' of the box
+    # wx, wy = start[0]+1, start[1]
+    # ww, wh = tuple(map(lambda x, y: x - y, end, start))
+
+    outer_box = [(wx-t, wy+t), (wx, wy+t), (wx, wy),
+                 (wx+ww-t, wy), (wx+ww-t, wy+t), (wx+ww, wy+t),
+                 (wx+ww, wy+wh-t), (wx+ww-t, wy+wh-t), (wx+ww-t, wy+wh),
+                 (wx, wy+wh), (wx, wy+wh-t), (wx-t, wy+wh-t)]
+
+    bx, by = wx+t, wy+t
+    bw, bh = ww-(2*t), wh-(2*t)
+
+    inner_box = [(bx-t, by+t), (bx, by+t), (bx, by), 
+                 (bx+bw-t, by), (bx+bw-t, by+t), (bx+bw, by+t),
+                 (bx+bw, by+bh-t), (bx+bw-t, by+bh-t), (bx+bw-t, by+bh), 
+                 (bx, by+bh), (bx, by+bh-t), (bx-t, by+bh-t)]
+
+    pygame.draw.polygon(window, WHITE, outer_box, 0)
+    pygame.draw.polygon(window, GREY, inner_box, 3)
+
+    return wx+8, wy+5       # Where the content of the box goes
+
+def draw_info(game, window):
+    x = 343
+    score, level, lines = game.get_info()
+    # x-len(str(score))*20 to align correctly according to number of digits
+    window.blit(font.render(str(score), 1, BLACK), (x-(len(str(score))-1)*20, 61))
+    window.blit(font.render(str(level), 1, BLACK), (x-(len(str(level))-1)*20, 141))
+    window.blit(font.render(str(lines), 1, BLACK), (x-(len(str(lines))-1)*20, 201))
+
 def main():
     # Initialise the game engine
     pygame.init()
@@ -60,37 +91,9 @@ def main():
     pygame.draw.line(window, WHITE, (263, 38), (400, 38), 3)
     pygame.draw.rect(window, GREY, (263, 40, 137, 17))
     pygame.draw.line(window, WHITE, (263, 58), (400, 58), 3)
-    # Draw score, level, lines, queue // initialise them to 0 or next block
-    def draw_box(start, end):
-        t = 3                               # 'Thickness' of the box
-        wx, wy = start[0]+1, start[1]
-        ww, wh = tuple(map(lambda x, y: x - y, end, start))
-
-        outer_box = [(wx-t, wy+t), (wx, wy+t), (wx, wy),
-                     (wx+ww-t, wy), (wx+ww-t, wy+t), (wx+ww, wy+t),
-                     (wx+ww, wy+wh-t), (wx+ww-t, wy+wh-t), (wx+ww-t, wy+wh),
-                     (wx, wy+wh), (wx, wy+wh-t), (wx-t, wy+wh-t)]
-
-        bx, by = wx+t, wy+t
-        bw, bh = ww-(2*t), wh-(2*t)
-
-        inner_box = [(bx-t, by+t), (bx, by+t), (bx, by), 
-                     (bx+bw-t, by), (bx+bw-t, by+t), (bx+bw, by+t),
-                     (bx+bw, by+bh-t), (bx+bw-t, by+bh-t), (bx+bw-t, by+bh), 
-                     (bx, by+bh), (bx, by+bh-t), (bx-t, by+bh-t)]
-
-        pygame.draw.polygon(window, WHITE, outer_box, 0)
-        pygame.draw.polygon(window, GREY, inner_box, 3)
-
-        return start[0]+7, start[1]+5       # Where the content of the box goes
-    score = draw_box((276, 16), (388, 49))
-    level = draw_box((276, 116), (388, 171))
-    lines = draw_box((276, 176), (388, 231))
-    queue = draw_box((276, 251), (389, 363))
-    # Text
-    window.blit(font.render("score", 1, BLACK), score)
-    window.blit(font.render("level", 1, BLACK), level)
-    window.blit(font.render("lines", 1, BLACK), lines)
+    # Draw box score
+    pygame.draw.rect(window, WHITE, (263, 62, 138, 24))
+    pygame.draw.line(window, WHITE, (263, 89), (400, 89), 3)
 
     # Create game surface
     screen = pygame.Surface(G_SIZE)
@@ -136,6 +139,19 @@ def main():
         # Redraw game and block to the screen (smoother line deletion)
         game.draw(screen)
         block.draw(screen)
+
+        # Redraw everything
+        ### Boxes
+        score = draw_box(window, (276, 16, 112, 33))
+        level = draw_box(window, (276, 116, 112, 55))
+        lines = draw_box(window, (276, 176, 112, 55))
+        queue = draw_box(window, (276, 251, 112, 112))
+        ### Text
+        window.blit(font.render("score", 1, BLACK), score)
+        window.blit(font.render("level", 1, BLACK), level)
+        window.blit(font.render("lines", 1, BLACK), lines)
+        ### Draw the numbers
+        draw_info(game, window)
 
         # Update score, level, lines, next piece
         # info.update()
