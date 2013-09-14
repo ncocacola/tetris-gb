@@ -3,14 +3,14 @@ from pygame.locals import *
 from config import *
 
 class Window(object):
-    def __init__(self):
+    def __init__(self, next_block):
         # Create the window
         self.surface = pygame.display.set_mode(W_SIZE)
         pygame.display.set_caption("nitris")
 
         # Draw elements
         self.draw_bricks()
-        self.draw_sidebar((0, 0, 0))
+        self.draw_sidebar((0, 0, 0), next_block)
 
     # Drawing stuff
     def draw_board(self, board):
@@ -22,11 +22,11 @@ class Window(object):
         self.surface.blit(bricks, (240, 0))
         pygame.draw.line(self.surface, WHITE, (18, 0), (18, 400), 3)
         pygame.draw.line(self.surface, WHITE, (261, 0), (261, 400), 3)
-    def draw_sidebar(self, (score, level, lines)):
+    def draw_sidebar(self, (score, level, lines), next_block):
         self.draw_score(score)
         self.draw_level(level)
         self.draw_lines(lines)
-        self.draw_queue()
+        self.draw_queue(next_block)
 
     def draw_score(self, score):
         # Box under score
@@ -53,10 +53,15 @@ class Window(object):
         self.surface.blit(font.render("lines", 1, BLACK), (284, 181))
         # Actual lines
         self.surface.blit(font.render(str(lines), 1, BLACK), (self.align(lines), 201))
-    def draw_queue(self):
+    def draw_queue(self, next_block):
         # Box & title
         self.draw_box(self.surface, (276, 251, 112, 112))
         self.surface.blit(font.render("queue", 1, BLACK), (284, 256))
+        # Actual next block
+        for tile in next_block.tiles:
+            x, y = tile.x-4, tile.y-2
+            location = map(sum, zip((x*CELL_W, y*CELL_H), (310, 316)))
+            self.surface.blit(tile.block.image, location)
 
     # Miscellaneous
     def draw_box(self, window, (wx, wy, ww, wh)):

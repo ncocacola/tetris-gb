@@ -12,9 +12,10 @@ class Direction(object):
         return self.name
 
 class BlockType(object):
-    def __init__(self, name, image):
+    def __init__(self, name, image, ghost):
         self.name = name
         self.image = pygame.image.load(image)
+        self.ghost = pygame.image.load(ghost)
     def __str__(self):
         return self.name
 
@@ -32,6 +33,7 @@ class Level(object):
 # Directories
 ASSETS_DIR = os.path.join(".", "assets")
 BLOCKS_DIR = os.path.join(ASSETS_DIR, "blocks")
+GHOSTS_DIR = os.path.join(ASSETS_DIR, "ghosts")
 
 # Directions (NB: Board is upside down: Down ==> Add, Up ==> Substract)
 LEFT = Direction("left", -1, 0)
@@ -40,13 +42,13 @@ DOWN = Direction("down", 0, 1)
 
 # BlockTypes
 ## Use os.path.join instead
-I = BlockType("I", os.path.join(BLOCKS_DIR, "I.png"))
-J = BlockType("J", os.path.join(BLOCKS_DIR, "J.png"))
-L = BlockType("L", os.path.join(BLOCKS_DIR, "L.png"))
-O = BlockType("O", os.path.join(BLOCKS_DIR, "O.png"))
-S = BlockType("S", os.path.join(BLOCKS_DIR, "S.png"))
-T = BlockType("T", os.path.join(BLOCKS_DIR, "T.png"))
-Z = BlockType("Z", os.path.join(BLOCKS_DIR, "Z.png"))
+I = BlockType("I", os.path.join(BLOCKS_DIR, "I.png"), os.path.join(GHOSTS_DIR, "I.png"))
+J = BlockType("J", os.path.join(BLOCKS_DIR, "J.png"), os.path.join(GHOSTS_DIR, "J.png"))
+L = BlockType("L", os.path.join(BLOCKS_DIR, "L.png"), os.path.join(GHOSTS_DIR, "L.png"))
+O = BlockType("O", os.path.join(BLOCKS_DIR, "O.png"), os.path.join(GHOSTS_DIR, "O.png"))
+S = BlockType("S", os.path.join(BLOCKS_DIR, "S.png"), os.path.join(GHOSTS_DIR, "S.png"))
+T = BlockType("T", os.path.join(BLOCKS_DIR, "T.png"), os.path.join(GHOSTS_DIR, "T.png"))
+Z = BlockType("Z", os.path.join(BLOCKS_DIR, "Z.png"), os.path.join(GHOSTS_DIR, "Z.png"))
 
 # Colours
 BLACK = (  0,   0,   0)

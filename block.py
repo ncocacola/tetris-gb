@@ -16,8 +16,11 @@ class Tile(object):
     def __hash__(self):     # need this for comparison between Tiles in Sets
         return hash(self.__repr__())
 
-    def draw(self, surface):
-        surface.blit(self.block.image, (CELL_W*self.x, CELL_H*self.y))
+    def draw(self, surface, ghost=False):
+        if ghost:
+            surface.blit(self.block.ghost, (CELL_W*self.x, CELL_H*self.y))
+        else:
+            surface.blit(self.block.image, (CELL_W*self.x, CELL_H*self.y))
 
 class Block(object):
     def __init__(self):
@@ -31,10 +34,16 @@ class Block(object):
             coordinates.append((tile.x, tile.y))
         return str(coordinates)
 
-    # Graphic stuff
-    def draw(self, surface):
+    def copy(self):
+        copy = type(self)()
+        copy.tiles = []
         for tile in self.tiles:
-            tile.draw(surface)
+            copy.tiles.append(Tile(tile.block, tile.x, tile.y))
+        return copy
+    # Graphic stuff
+    def draw(self, surface, ghost=False):
+        for tile in self.tiles:
+            tile.draw(surface, ghost)
 
     # Check various things
     def is_valid(self, game):
@@ -48,14 +57,15 @@ class Block(object):
         return set(self.tiles).intersection(set(game.tiles))
 
     # Simulate the move, check if it's valid
+    ## TODO generalise this with "Action" (see process_input())
     def can_move(self, game, direction):
-        moved_block = copy.deepcopy(self)
-        moved_block.move(direction)
-        return moved_block.is_valid(game)
+        block = self.copy()
+        block.move(direction)
+        return block.is_valid(game)
     def can_rotate(self, game):
-        rotated_block = copy.deepcopy(self)
-        rotated_block.rotate()
-        return rotated_block.is_valid(game)
+        block = self.copy()
+        block.rotate()
+        return block.is_valid(game)
 
     # Actions
     def move(self, direction):
@@ -66,12 +76,18 @@ class Block(object):
         while self.can_move(game, DOWN):
             self.move(DOWN)
             self.hard_drop += 2
+    def ghost(self, game, board):
+        ghost_block = self.copy()
+        ghost_block.drop_hard(game)
+        ghost_block.draw(board, True)
 
 # The 'central' tile is always the first element of the list of tiles
 # See http://tetris.wikia.com/wiki/SRS
+
+## TODO, origin = center tile, generate other tiles from center tile
 class BlockI(Block):
     def create_tiles(self):
-        self.tiles = [Tile(I, 1, 1), Tile(I, 2, 1), Tile(I, 3, 1), Tile(I, 4, 1)]
+        self.tiles = [Tile(I, 3, 1), Tile(I, 4, 1), Tile(I, 5, 1), Tile(I, 6, 1)]
     def rotate(self):
         if self.rotation == 0:
             x, y = self.tiles[0].x+2, self.tiles[0].y-1
@@ -91,12 +107,12 @@ class BlockI(Block):
             self.rotation = 0
 class BlockO(Block):
     def create_tiles(self):
-        self.tiles = [Tile(O, 1, 1), Tile(O, 1, 2), Tile(O, 2, 1), Tile(O, 2, 2)]
+        self.tiles = [Tile(O, 4, 1), Tile(O, 4, 2), Tile(O, 5, 1), Tile(O, 5, 2)]
     def rotate(self):
         pass
 class BlockT(Block):
     def create_tiles(self):
-        self.tiles = [Tile(T, 2, 2), Tile(T, 1, 2), Tile(T, 2, 1), Tile(T, 3, 2)]
+        self.tiles = [Tile(T, 4, 2), Tile(T, 3, 2), Tile(T, 4, 1), Tile(T, 5, 2)]
     def rotate(self):
         x, y = self.tiles[0].x, self.tiles[0].y
         if self.rotation == 0:
@@ -113,7 +129,7 @@ class BlockT(Block):
             self.rotation = 0
 class BlockS(Block):
     def create_tiles(self):
-        self.tiles = [Tile(S, 2, 2), Tile(S, 1, 2), Tile(S, 2, 1), Tile(S, 3, 1)]
+        self.tiles = [Tile(S, 4, 2), Tile(S, 3, 2), Tile(S, 4, 1), Tile(S, 5, 1)]
     def rotate(self):
         x, y = self.tiles[0].x, self.tiles[0].y
         if self.rotation == 0:
@@ -130,7 +146,7 @@ class BlockS(Block):
             self.rotation = 0
 class BlockZ(Block):
     def create_tiles(self):
-        self.tiles = [Tile(Z, 2, 2), Tile(Z, 1, 1), Tile(Z, 2, 1), Tile(Z, 3, 2)]
+        self.tiles = [Tile(Z, 4, 2), Tile(Z, 3, 1), Tile(Z, 4, 1), Tile(Z, 5, 2)]
     def rotate(self):
         x, y = self.tiles[0].x, self.tiles[0].y
         if self.rotation == 0:
@@ -147,7 +163,7 @@ class BlockZ(Block):
             self.rotation = 0
 class BlockJ(Block):
     def create_tiles(self):
-        self.tiles = [Tile(J, 2, 2), Tile(J, 1, 1), Tile(J, 1, 2), Tile(J, 3, 2)]
+        self.tiles = [Tile(J, 4, 2), Tile(J, 3, 1), Tile(J, 3, 2), Tile(J, 5, 2)]
     def rotate(self):
         x, y = self.tiles[0].x, self.tiles[0].y
         if self.rotation == 0:
@@ -164,7 +180,7 @@ class BlockJ(Block):
             self.rotation = 0
 class BlockL(Block):
     def create_tiles(self):
-        self.tiles = [Tile(L, 2, 2), Tile(L, 1, 2), Tile(L, 3, 2), Tile(L, 3, 1)]
+        self.tiles = [Tile(L, 4, 2), Tile(L, 3, 2), Tile(L, 5, 2), Tile(L, 5, 1)]
     def rotate(self):
         x, y = self.tiles[0].x, self.tiles[0].y
         if self.rotation == 0:
