@@ -23,8 +23,7 @@ def main():
     game = Game()
     # Create the two blocks
     block = game.new_block()
-    # next_block = game.new_block()
-    next_block = BlockO()
+    next_block = game.new_block()
     # Create game surface
     board = pygame.Surface(G_SIZE)
     clock = pygame.time.Clock()
@@ -64,6 +63,7 @@ def main():
         # Draw the game and block to the board
         game.draw(board)
         block.draw(board)
+
         # Update the window
         ## Once you have 'merged' block and game (i.e. have game.block, game.next_block),
         ## Put next_block in the tuple get_info() returns

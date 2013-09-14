@@ -34,12 +34,6 @@ class Block(object):
             coordinates.append((tile.x, tile.y))
         return str(coordinates)
 
-    def copy(self):
-        copy = type(self)()
-        copy.tiles = []
-        for tile in self.tiles:
-            copy.tiles.append(Tile(tile.block, tile.x, tile.y))
-        return copy
     # Graphic stuff
     def draw(self, surface, ghost=False):
         for tile in self.tiles:
@@ -59,11 +53,13 @@ class Block(object):
     # Simulate the move, check if it's valid
     ## TODO generalise this with "Action" (see process_input())
     def can_move(self, game, direction):
-        block = self.copy()
+        # block = self.copy()
+        block = copy.deepcopy(self)
         block.move(direction)
         return block.is_valid(game)
     def can_rotate(self, game):
-        block = self.copy()
+        # block = self.copy()
+        block = copy.deepcopy(self)
         block.rotate()
         return block.is_valid(game)
 
@@ -77,13 +73,16 @@ class Block(object):
             self.move(DOWN)
             self.hard_drop += 2
     def ghost(self, game, board):
-        ghost_block = self.copy()
+        # Copy the block (deep copy won't work)
+        ghost_block = type(self)()
+        ghost_block.tiles=[]
+        for tile in self.tiles:
+            ghost_block.tiles.append(Tile(tile.block, tile.x, tile.y))
         ghost_block.drop_hard(game)
         ghost_block.draw(board, True)
 
 # The 'central' tile is always the first element of the list of tiles
 # See http://tetris.wikia.com/wiki/SRS
-
 ## TODO, origin = center tile, generate other tiles from center tile
 class BlockI(Block):
     def create_tiles(self):
