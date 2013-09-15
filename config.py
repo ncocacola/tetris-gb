@@ -89,3 +89,7 @@ LOCK_DELAY = 0.5
 pygame.font.init()
 font = pygame.font.Font("./assets/fonts/tetris-gb.ttf", 20)
 
+# Game States
+PLAY = "play"
+PAUSE = "pause"
+OVER = "over"

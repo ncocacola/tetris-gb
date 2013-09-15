@@ -9,6 +9,7 @@ class Game(object):
         self.lines = 0
         self.score = 0
         self.bag = self.new_bag()
+        self.state = PLAY
 
         # Timers
         self.last_event = time.time()
@@ -80,11 +81,33 @@ class Game(object):
 
     # Keyboard stuff (https://github.com/acchao/tetromino_andrew/)
     def process_quit(self):
+        def quit():
+            pygame.mixer.music.stop()
+            pygame.quit()
+            sys.exit()
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                sys.exit()
+            if event.type == pygame.QUIT:   # Mouse
+                quit()
+            if event.type == pygame.KEYUP:  # Keyboard
+                if (event.key == pygame.K_ESCAPE) or (event.key == pygame.K_q):
+                    quit()
             # Return the event if not quitting
-            pygame.event.post(event) 
+            pygame.event.post(event)
+
+    def process_pause(self):
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:  # Keyboard
+                if (event.key == pygame.K_p):
+                    if self.state == PLAY:
+                        self.state = PAUSE
+                        pygame.mixer.music.pause()
+                    elif self.state == PAUSE:
+                        self.state = PLAY
+                        pygame.mixer.music.unpause()
+                else:
+                    pygame.event.post(event) 
+            # # Return the event if not quitting
+
     def process_input(self, block):
         # Discrete key presses
         for event in pygame.event.get():

@@ -1,4 +1,5 @@
-import pygame, time
+import pygame, time, os
+import pyglet
 from pygame.locals import *
 from config import *
 
@@ -8,13 +9,35 @@ class Window(object):
         self.surface = pygame.display.set_mode(W_SIZE)
         pygame.display.set_caption("nitris")
 
+        # Start music
+        self.play_music()
+
         # Draw elements
         self.draw_bricks()
         self.draw_sidebar((0, 0, 0), next_block)
 
+    # Music stuff
+    def play_music(self):
+        pygame.mixer.music.load(os.path.join(ASSETS_DIR, "music/tetris-gb.mid"))
+        pygame.mixer.music.play(-1)
+
     # Drawing stuff
     def draw_board(self, board):
         self.surface.blit(board, (40, 0))
+    def draw_paused(self):
+        paused = pygame.Surface(G_SIZE)
+        paused.fill(WHITE)
+
+        paused.blit(font.render("hit p", 1, BLACK), (30, 50))
+        paused.blit(font.render("to", 1, BLACK), (30, 70))
+        paused.blit(font.render("continue", 1, BLACK), (30, 90))
+        paused.blit(font.render("game", 1, BLACK), (30, 110))
+
+        paused.blit(font.render("p   pause", 1, BLACK), (30, 170))
+        paused.blit(font.render("q   quit", 1, BLACK), (30, 190))
+        paused.blit(font.render("s   sound", 1, BLACK), (30, 210))
+
+        self.surface.blit(paused, (40, 0))
 
     def draw_bricks(self):
         bricks = pygame.image.load(os.path.join(ASSETS_DIR, "bricks.png"))
@@ -22,7 +45,7 @@ class Window(object):
         self.surface.blit(bricks, (240, 0))
         pygame.draw.line(self.surface, WHITE, (18, 0), (18, 400), 3)
         pygame.draw.line(self.surface, WHITE, (261, 0), (261, 400), 3)
-    def draw_sidebar(self, (score, level, lines), next_block):
+    def draw_sidebar(self, (score, level, lines), next_block=None):
         self.draw_score(score)
         self.draw_level(level)
         self.draw_lines(lines)
@@ -58,10 +81,11 @@ class Window(object):
         self.draw_box(self.surface, (276, 251, 112, 112))
         self.surface.blit(font.render("queue", 1, BLACK), (284, 256))
         # Actual next block
-        for tile in next_block.tiles:
-            x, y = tile.x-4, tile.y-2
-            location = map(sum, zip((x*CELL_W, y*CELL_H), (310, 316)))
-            self.surface.blit(tile.block.image, location)
+        if next_block:
+            for tile in next_block.tiles:
+                x, y = tile.x-4, tile.y-2
+                location = map(sum, zip((x*CELL_W, y*CELL_H), (310, 316)))
+                self.surface.blit(tile.block.image, location)
 
     # Miscellaneous
     def draw_box(self, window, (wx, wy, ww, wh)):
