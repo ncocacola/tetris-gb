@@ -18,7 +18,7 @@ class Window(object):
 
     # Music stuff
     def play_music(self):
-        pygame.mixer.music.load(os.path.join(ASSETS_DIR, "music/tetris-gb.mid"))
+        pygame.mixer.music.load(os.path.join(ASSETS_DIR, "music/tetris-gb.wav"))
         pygame.mixer.music.play(-1)
 
     # Drawing stuff
