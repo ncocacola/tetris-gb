@@ -1,30 +1,21 @@
 #!/usr/bin/env python
 
-## http://tetris.wikia.com/wiki/Tetris_Guideline
-## http://stackoverflow.com/questions/1969005/enumerations-in-python (Objects with functionality)
-## Keyboard stuff: https://github.com/acchao/tetromino_andrew/
-
-# Useful modules
-import sys, time
-# PyGame
 import pygame
-from pygame.locals import *
-# Classes
-from game import *
-from block import *
-from config import *
 from window import *
 
-def main():
+## http://tetris.wikia.com/wiki/Tetris_Guideline
+## http://stackoverflow.com/questions/1969005/enumerations-in-python (Objects with functionality)
+
+## Keyboard stuff: https://github.com/acchao/tetromino_andrew/
+## Random Generator: http://tetris.wikia.com/wiki/Random_Generator
+## Super Rotation System: http://tetris.wikia.com/wiki/SRS
+
+if __name__ == "__main__":
     # Initialise the game engine
     pygame.init()
     # Create the window/game/b
     window = Window()
 
     while True:
-        window.while_loop()
-
-if __name__ == "__main__":
-    main()
-
-
+        window.main()
+        pygame.display.update()
