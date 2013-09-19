@@ -14,10 +14,11 @@ class Window(object):
 
         # Create the game
         self.game = game.Game()
+        self.state = PLAY
+        self.ghost = True
 
         # Music (refactor this)
         pygame.mixer.music.play(-1)
-        self.state = PLAY
         self.music = PLAY
 
         # Draw
@@ -30,10 +31,16 @@ class Window(object):
 
         self.listen_for_quit()
         self.listen_for_pause()
+        self.listen_for_ghost()
+        self.listen_for_sound()
+        self.listen_for_reset()
+
         self.listen_for_input()
 
         if self.state == PLAY:
-            self.draw_ghost_block()
+            if self.ghost:
+                self.draw_ghost_block()
+
             self.game.advance()
             self.game.draw(self.board)
             
@@ -70,7 +77,10 @@ class Window(object):
 
         paused.blit(font.render("p   pause", 1, BLACK), (30, 170))
         paused.blit(font.render("q   quit", 1, BLACK), (30, 190))
-        # paused.blit(font.render("s   sound", 1, BLACK), (30, 210))
+        paused.blit(font.render("r   reset", 1, BLACK), (30, 210))
+
+        paused.blit(font.render("s   sound", 1, BLACK), (30, 250))
+        paused.blit(font.render("g   ghost", 1, BLACK), (30, 270))
 
         self.window.blit(paused, (40, 0))
     def draw_over(self):
@@ -139,7 +149,65 @@ class Window(object):
                 location = map(sum, zip((x*CELL_W, y*CELL_H), (310, 316)))
                 self.window.blit(tile.type.image, location)
 
-    # Keyboard
+    # Keyboard: TODO Refactor all of these
+    # listen_for_input() doesn't have post(event) because it runs after 
+    # all the others in the loop
+    def listen_for_quit(self):
+        def quit():
+            pygame.mixer.music.stop()
+            pygame.quit()
+            sys.exit()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:   # Mouse
+                quit()
+            elif event.type == pygame.KEYUP:  # Keyboard
+                if (event.key == pygame.K_ESCAPE) or (event.key == pygame.K_q):
+                    quit()
+            # Return the event if not quitting
+            else:
+                pygame.event.post(event)
+    def listen_for_pause(self):
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:  # Keyboard
+                if (event.key == pygame.K_p):
+                    if self.state == PLAY:
+                        self.state = PAUSE
+                        if self.music == PLAY:
+                            self.music = PAUSE
+                            pygame.mixer.music.pause()
+                    elif self.state == PAUSE:
+                        pygame.event.clear()
+                        self.state = PLAY
+                        if self.music == PAUSE:
+                            self.music = PLAY
+                            pygame.mixer.music.unpause()
+                else:
+                    pygame.event.post(event)
+    def listen_for_ghost(self):
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if (event.key == pygame.K_g):
+                    self.ghost = not (self.ghost)
+            pygame.event.post(event)
+    def listen_for_sound(self):
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if (event.key == pygame.K_s):
+                    if self.music == PLAY:
+                        self.music = OVER
+                        pygame.mixer.music.stop()
+                    elif self.music == OVER:
+                        self.music = PLAY
+                        pygame.mixer.music.play()
+            pygame.event.post(event)
+    def listen_for_reset(self):
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if (event.key == pygame.K_r):
+                    self.game = game.Game()
+            pygame.event.post(event)
+
+
     # Can you generalise this?
     def listen_for_input(self):
         # Discrete key presses
@@ -170,38 +238,7 @@ class Window(object):
                     self.game.block.move(DOWN)
                 self.game.block.soft_points += 1
                 self.game.last_event = time.time()
-    # Sort out pygame.event.post(event)
-    def listen_for_quit(self):
-        def quit():
-            pygame.mixer.music.stop()
-            pygame.quit()
-            sys.exit()
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:   # Mouse
-                quit()
-            elif event.type == pygame.KEYUP:  # Keyboard
-                if (event.key == pygame.K_ESCAPE) or (event.key == pygame.K_q):
-                    quit()
-            # Return the event if not quitting
-            else:
-                pygame.event.post(event)
-    def listen_for_pause(self):
-        for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:  # Keyboard
-                if (event.key == pygame.K_p):
-                    if self.state == PLAY:
-                        print "PAUSE"
-                        self.state = PAUSE
-                        if self.music == PLAY:
-                            self.music = PAUSE
-                            pygame.mixer.music.pause()
-                    elif self.state == PAUSE:
-                        self.state = PLAY
-                        if self.music == PAUSE:
-                            self.music = PLAY
-                            pygame.mixer.music.unpause()
-                else:
-                    pygame.event.post(event)
+
 
     # Helper functions
     def box(self, window, (wx, wy, ww, wh)):
