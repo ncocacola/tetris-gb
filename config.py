@@ -48,9 +48,9 @@ class Level(object):
         return str(self.n)
 
 # Dimensions -- (WIDTH, HEIGHT)
-ARRAY_SIZE = (10, 20)
+ARRAY_SIZE = (10, 22)
 WINDOW_SIZE = (400, 400)                # Remove two rows at the top (they should be hidden)
-BOARD_SIZE = (200, 400)
+BOARD_SIZE = (200, 440)
 CELL_W, CELL_H = (20, 20)
 MAX_X, MAX_Y = [a-1 for a in ARRAY_SIZE]
 
@@ -76,6 +76,7 @@ pygame.mixer.init()
 pygame.mixer.music.load(os.path.join(ASSETS_DIR, "music/tetris-gb.wav"))
 
 # Game States
+SPLASH = "splash"
 PLAY = "play"
 PAUSE = "pause"
 OVER = "over"

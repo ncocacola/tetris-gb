@@ -109,10 +109,8 @@ class Game(object):
         return (self.block_bag.pop())()
 
     # Game over
-    # TODO
-    def check_over(self, block):
-        if not (block.can_move(self, DOWN)):
+    def over(self):
+        if not (self.block.can_move(self, DOWN)):
             for tile in self.tiles:
                 if tile.y == 1:
-                    self.state = OVER
-
+                    return OVER

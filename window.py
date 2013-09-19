@@ -12,6 +12,11 @@ class Window(object):
         self.board = pygame.Surface(BOARD_SIZE)
         self.clock = pygame.time.Clock()
 
+        # self.state = SPLASH
+
+        self.init()
+
+    def init(self):
         # Create the game
         self.game = game.Game()
         self.state = PLAY
@@ -30,6 +35,11 @@ class Window(object):
         self.board.fill(WHITE)
 
         self.listen_for_quit()
+
+        # if self.state == SPLASH:
+        #     self.draw_splashscreen()
+        #     self.listen_for_start()
+        # else:
         self.listen_for_pause()
         self.listen_for_ghost()
         self.listen_for_sound()
@@ -37,20 +47,22 @@ class Window(object):
 
         self.listen_for_input()
 
+        # Play
         if self.state == PLAY:
             if self.ghost:
                 self.draw_ghost_block()
-
             self.game.advance()
             self.game.draw(self.board)
-            
-            # Check that the game is not over
-            self.game.check_over(self.game.block)
+
+        # Check if the game is over
+        if self.game.over():
+            self.state = OVER
 
         self.redraw()
 
     # Drawing
     def draw(self):
+        self.window.fill(BLACK)
         self.draw_bricks()
         self.draw_board()
         self.draw_sidebar()
@@ -61,11 +73,16 @@ class Window(object):
             self.draw_paused()
         elif self.state == OVER:
             self.draw_over()
-
         self.draw_sidebar()
 
+
+    def draw_splashscreen(self):
+        image = pygame.image.load(os.path.join(ASSETS_DIR, "splash.png"))
+        self.window.blit(image, (0, 0))
+
+
     def draw_board(self):
-        self.window.blit(self.board, (40, 0))
+        self.window.blit(self.board, (40, -40))
     def draw_paused(self):
         paused = pygame.Surface(BOARD_SIZE)
         paused.fill(WHITE)
@@ -84,13 +101,21 @@ class Window(object):
 
         self.window.blit(paused, (40, 0))
     def draw_over(self):
-        paused = pygame.Surface(BOARD_SIZE)
-        paused.fill(WHITE)
+        over = pygame.Surface(BOARD_SIZE)
+        over.fill(WHITE)
 
-        paused.blit(font.render("game", 1, BLACK), (30, 50))
-        paused.blit(font.render("over", 1, BLACK), (30, 70))
+        self.box(over, (30, 50, 140, 100), True)
 
-        self.window.blit(paused, (40, 0))
+        over.blit(font.render("game", 1, BLACK), (60, 70))
+        over.blit(font.render("over", 1, BLACK), (60, 100))
+
+        over.blit(font.render("thanks", 1, BLACK), (40, 180))
+        over.blit(font.render("for", 1, BLACK), (70, 210))
+        over.blit(font.render("playing", 1, BLACK), (30, 240))
+
+        over.blit(font.render("r to reset", 1, BLACK), (15, 300))
+
+        self.window.blit(over, (40, 0))
 
     def draw_bricks(self):
         self.window.blit(BRICKS, (20, 0))
@@ -143,7 +168,7 @@ class Window(object):
         self.box(self.window, (276, 251, 112, 112))
         self.window.blit(font.render("queue", 1, BLACK), (284, 256))
         # Actual next block
-        if next_block:
+        if self.state == PLAY:
             for tile in next_block.tiles:
                 x, y = tile.x-4, tile.y-2
                 location = map(sum, zip((x*CELL_W, y*CELL_H), (310, 316)))
@@ -166,6 +191,15 @@ class Window(object):
             # Return the event if not quitting
             else:
                 pygame.event.post(event)
+    def listen_for_start(self):
+        for event in pygame.event.get():
+            if (event.type == pygame.KEYDOWN) and (event.key == pygame.K_RETURN):
+                print "YESBOS"
+                self.init()
+            # Return the event if not quitting
+            else:
+                pygame.event.post(event)
+
     def listen_for_pause(self):
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:  # Keyboard
@@ -204,9 +238,13 @@ class Window(object):
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if (event.key == pygame.K_r):
-                    self.game = game.Game()
+                    if not (self.state == PAUSE):
+                        # rewind() doesn't work
+                        pygame.mixer.music.stop()
+                        pygame.mixer.music.play()
+                        self.game = game.Game()
+                        self.state = PLAY
             pygame.event.post(event)
-
 
     # Can you generalise this?
     def listen_for_input(self):
@@ -241,20 +279,33 @@ class Window(object):
 
 
     # Helper functions
-    def box(self, window, (wx, wy, ww, wh)):
+    def box(self, surface, (ox, oy, ow, oh), black=False):
         t = 3 # 'Thickness' of the box
-        bx, by = wx+t, wy+t
-        bw, bh = ww-(2*t), wh-(2*t)
-        outer_box = [(wx-t, wy+t), (wx, wy+t), (wx, wy),
-                     (wx+ww-t, wy), (wx+ww-t, wy+t), (wx+ww, wy+t),
-                     (wx+ww, wy+wh-t), (wx+ww-t, wy+wh-t), (wx+ww-t, wy+wh),
-                     (wx, wy+wh), (wx, wy+wh-t), (wx-t, wy+wh-t)]
-        inner_box = [(bx-t, by+t), (bx, by+t), (bx, by), 
-                     (bx+bw-t, by), (bx+bw-t, by+t), (bx+bw, by+t),
-                     (bx+bw, by+bh-t), (bx+bw-t, by+bh-t), (bx+bw-t, by+bh), 
-                     (bx, by+bh), (bx, by+bh-t), (bx-t, by+bh-t)]
-        pygame.draw.polygon(window, WHITE, outer_box, 0)
-        pygame.draw.polygon(window, GREY, inner_box, 3)
+        ix, iy = ox+t, oy+t
+        iw, ih = ow-(2*t), oh-(2*t)
+
+        outer_box = [(ox-t, oy+t), (ox, oy+t), (ox, oy),
+                     (ox+ow-t, oy), (ox+ow-t, oy+t), (ox+ow, oy+t),
+                     (ox+ow, oy+oh-t), (ox+ow-t, oy+oh-t), (ox+ow-t, oy+oh),
+                     (ox, oy+oh), (ox, oy+oh-t), (ox-t, oy+oh-t)]
+        inner_box = [(ix-t, iy+t), (ix, iy+t), (ix, iy),
+                     (ix+iw-t, iy), (ix+iw-t, iy+t), (ix+iw, iy+t),
+                     (ix+iw, iy+ih-t), (ix+iw-t, iy+ih-t), (ix+iw-t, iy+ih),
+                     (ix, iy+ih), (ix, iy+ih-t), (ix-t, iy+ih-t)]
+
+        if black:
+            bx, by = ox-t, oy-t
+            bw, bh = ow+(2*t), oh+(2*t)
+
+            black_box = [(bx-t, by+t), (bx, by+t), (bx, by),
+                         (bx+bw-t, by), (bx+bw-t, by+t), (bx+bw, by+t),
+                         (bx+bw, by+bh-t), (bx+bw-t, by+bh-t), (bx+bw-t, by+bh),
+                         (bx, by+bh), (bx, by+bh-t), (bx-t, by+bh-t)]
+
+            pygame.draw.polygon(surface, BLACK, black_box, 3)
+
+        pygame.draw.polygon(surface, WHITE, outer_box, 0)
+        pygame.draw.polygon(surface, GREY, inner_box, 3)
     def align(self, nb):
         x = 343
         n = len(str(nb))
