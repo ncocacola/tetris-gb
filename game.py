@@ -4,12 +4,16 @@ from config import *
 
 class Game(object):
     def __init__(self):
+        # State variables
         self.tiles = []
         self.level = Level(0)
         self.lines = 0
         self.score = 0
-        self.bag = self.new_bag()
-        self.state = PLAY
+
+        # Current/next block
+        self.block_bag = self.new_block_bag()
+        self.block = self.new_block()
+        self.next_block = self.new_block()
 
         # Timers
         self.last_event = time.time()
@@ -26,117 +30,96 @@ class Game(object):
             state[tile.x][tile.y] = 1
         return state
 
+    def advance(self):
+        # If the block cannot move anymore
+        if not (self.block.can_move(self, DOWN)):
+            if (self.block.hard_drop) or (time.time() - self.last_event > LOCK_DELAY):
+                self.update_state()
+                self.new_round()
+        # Else, process the keyboard input and move accordingly
+        elif ((self.block.can_move(self, DOWN)) and (time.time() - self.last_drop > self.level.fall_speed)):
+            self.block.move(DOWN)
+            self.last_drop = time.time()
+    def new_round(self):
+        # Generate new blocks
+        self.block = self.next_block
+        self.next_block = self.new_block() 
+
     # Graphic stuff
-    def draw(self, surface):
+    def draw(self, board):
         for tile in self.tiles:
-            tile.draw(surface)
-    def merge(self, block):
-        self.tiles += block.tiles
+            tile.draw(board)
+        self.block.draw(board)
+        
 
     # Logic-ish stuff
-    def remove_lines(self):
-        lines = []
+    # Rethink/rewrite this
+    def update_state(self):
+        def remove_lines():
+            def is_full(line):
+                line_tiles = [tile for tile in self.tiles if tile.y == line]
+                if len(line_tiles) == ARRAY_X:
+                    return line_tiles
 
-        # For each line
-        for line in range(ARRAY_Y):
-            # Get all the Tiles on that line
-            all_tiles = self.is_full(line)
-            # If the line is all tiles
-            if all_tiles:
-                # Remove all the tiles
-                map(self.tiles.remove, all_tiles)
-                # Record the line
-                lines.append(line)
+            lines = []
 
-        # For each removed line 
-        for line in lines:
-            for tile in self.tiles:
-                # Get all the Tiles located above the line you just removed
-                if tile.y < line:
-                    # Move them down one notch
-                    tile.y += DOWN.dy
+            # For each line
+            for line in range(ARRAY_Y):
+                # Get all the Tiles on that line
+                all_tiles = is_full(line)
+                # If the line is all tiles
+                if all_tiles:
+                    # Remove all the tiles
+                    map(self.tiles.remove, all_tiles)
+                    # Record the line
+                    lines.append(line)
 
-        # Return how many lines you removed
-        return len(lines)
-    def is_full(self, line):
-        line_tiles = [tile for tile in self.tiles if tile.y == line]
-        if len(line_tiles) == ARRAY_X:
-            return line_tiles
-    def update_info(self, lines):
-        if lines > 0:
-            self.lines += lines
-            self.score += self.level.points[lines]
-            if self.lines >= (self.level.n + 1)*10:
-                self.level = Level(self.level.n + 1)
+            # For each removed line 
+            for line in lines:
+                for tile in self.tiles:
+                    # Get all the Tiles located above the line you just removed
+                    if tile.y < line:
+                        # Move them down one notch
+                        tile.y += DOWN.dy
+
+            # Return how many lines you removed
+            return len(lines)
+
+        # Merge the block into the game
+        self.tiles += self.block.tiles
+
+        # Remove lines
+        removed_lines = remove_lines()
+
+        # Update score
+        self.score += self.block.soft_drop
+        self.score += self.block.hard_drop
+        self.score += self.level.points[removed_lines]
+
+        # Update lines/level
+        self.lines += removed_lines
+        if self.lines >= (self.level.n + 1)*10:
+            self.level = Level(self.level.n + 1)
+    # Rename this to 'redraw'?
+    # def update_draw(self, board):
+    #     # Redraw the game and block to the board
+    #     self.draw(board)
+    #     self.block.draw(board)
 
     # Random Generator (http://tetris.wikia.com/wiki/Random_Generator)
-    def new_bag(self):
+    def new_block_bag(self):
         bag = Block.__subclasses__()
         random.shuffle(bag)
         return bag
     def new_block(self):
-        if not self.bag:
-            self.bag = self.new_bag()
-        return (self.bag.pop())()
+        if not self.block_bag:
+            self.block_bag = self.new_block_bag()
+        return (self.block_bag.pop())()
 
-    # Keyboard stuff (https://github.com/acchao/tetromino_andrew/)
-    def process_quit(self):
-        def quit():
-            pygame.mixer.music.stop()
-            pygame.quit()
-            sys.exit()
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:   # Mouse
-                quit()
-            if event.type == pygame.KEYUP:  # Keyboard
-                if (event.key == pygame.K_ESCAPE) or (event.key == pygame.K_q):
-                    quit()
-            # Return the event if not quitting
-            pygame.event.post(event)
+    # Game over?
+    def check_over(self, block):
+        if not (block.can_move(self, DOWN)):
+            for tile in self.tiles:
+                if tile.y == 1:
+                    self.state = OVER
 
-    def process_pause(self):
-        for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:  # Keyboard
-                if (event.key == pygame.K_p):
-                    if self.state == PLAY:
-                        self.state = PAUSE
-                        pygame.mixer.music.pause()
-                    elif self.state == PAUSE:
-                        self.state = PLAY
-                        pygame.mixer.music.unpause()
-                else:
-                    pygame.event.post(event) 
-            # # Return the event if not quitting
-
-    def process_input(self, block):
-        # Discrete key presses
-        for event in pygame.event.get():
-            if (event.type == pygame.KEYDOWN):
-                if (event.key == pygame.K_SPACE):
-                    block.drop_hard(self)
-                elif event.key == pygame.K_UP:
-                    if block.can_rotate(self):
-                        block.rotate()
-                elif (event.key == pygame.K_LEFT):
-                    if block.can_move(self, LEFT):
-                        block.move(LEFT)
-                elif event.key == pygame.K_RIGHT:
-                    if block.can_move(self, RIGHT):
-                        block.move(RIGHT)
-                elif event.key == pygame.K_DOWN:
-                    if block.can_move(self, DOWN):
-                        block.move(DOWN)
-                self.last_event = time.time()
-                break
-        # Continuous key presses
-        keystate = pygame.key.get_pressed()
-        if keystate[K_DOWN]:
-            if time.time() - self.last_event >= SOFT_DROP_SPEED:
-                if block.can_move(self, DOWN):
-                    block.move(DOWN)
-                block.soft_drop += 1
-                self.last_event = time.time()
-
-    # Getter for information
-    def get_info(self):
-        return (self.score, self.level, self.lines)

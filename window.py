@@ -1,29 +1,115 @@
-import pygame, time, os
+import pygame, time, os, sys
 import pyglet
 from pygame.locals import *
 from config import *
+# from game import *
+import game
 
 class Window(object):
-    def __init__(self, next_block):
+    def __init__(self):
         # Create the window
         self.surface = pygame.display.set_mode(W_SIZE)
         pygame.display.set_caption("nitris")
 
-        # Start music
-        self.play_music()
+        # ...
+        self.board = pygame.Surface(G_SIZE)
+        self.clock = pygame.time.Clock()
 
-        # Draw elements
-        self.draw_bricks()
-        self.draw_sidebar((0, 0, 0), next_block)
+        # Create the game
+        self.game = game.Game()
 
-    # Music stuff
-    def play_music(self):
+        # Start music (refactor this)
         pygame.mixer.music.load(os.path.join(ASSETS_DIR, "music/tetris-gb.wav"))
         pygame.mixer.music.play(-1)
+        self.state = PLAY
+        self.music = PLAY
+
+
+        # Draw elements
+        self.draw()
+
+
+    # Keyboard stuff (https://github.com/acchao/tetromino_andrew/)
+    def process_quit(self):
+        def quit():
+            pygame.mixer.music.stop()
+            pygame.quit()
+            sys.exit()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:   # Mouse
+                quit()
+            elif event.type == pygame.KEYUP:  # Keyboard
+                if (event.key == pygame.K_ESCAPE) or (event.key == pygame.K_q):
+                    quit()
+            # Return the event if not quitting
+            else:
+                pygame.event.post(event)
+    # Rewrite this!
+    def process_pause(self):
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:  # Keyboard
+                if (event.key == pygame.K_p):
+                    if self.state == PLAY:
+                        self.state = PAUSE
+                        if self.music == PLAY:
+                            self.music = PAUSE
+                            pygame.mixer.music.pause()
+                    elif self.state == PAUSE:
+                        self.state = PLAY
+                        if self.music == PAUSE:
+                            self.music = PLAY
+                            pygame.mixer.music.unpause()
+                else:
+                    pygame.event.post(event)
+
+    # Rewrite this, move can_rotate into game
+    # Check why you can hard_drop while paused
+    def process_input(self):
+        # Discrete key presses
+        for event in pygame.event.get():
+            if (event.type == pygame.KEYDOWN):
+                if (event.key == pygame.K_SPACE):
+                    self.game.block.drop_hard(self.game)
+                elif event.key == pygame.K_UP:
+                    if self.game.block.can_rotate(self.game):
+                        self.game.block.rotate()
+                elif (event.key == pygame.K_LEFT):
+                    if self.game.block.can_move(self.game, LEFT):
+                        self.game.block.move(LEFT)
+                elif event.key == pygame.K_RIGHT:
+                    if self.game.block.can_move(self.game, RIGHT):
+                        self.game.block.move(RIGHT)
+                elif event.key == pygame.K_DOWN:
+                    if self.game.block.can_move(self.game, DOWN):
+                        self.game.block.move(DOWN)
+                self.game.last_event = time.time()
+                break
+        # Continuous key presses
+        keystate = pygame.key.get_pressed()
+        if keystate[K_DOWN]:
+            if time.time() - self.game.last_event >= SOFT_DROP_SPEED:
+                if self.game.block.can_move(self.game, DOWN):
+                    self.game.block.move(DOWN)
+                self.game.block.soft_drop += 1
+                self.game.last_event = time.time()
 
     # Drawing stuff
-    def draw_board(self, board):
-        self.surface.blit(board, (40, 0))
+    def draw(self):
+        self.draw_bricks()
+        self.draw_board()
+        self.draw_sidebar()
+    def redraw(self):
+        if self.state == PLAY:
+            self.draw_board()
+        elif self.state == PAUSE:
+            self.draw_paused()
+        elif self.state == OVER:
+            self.draw_over()
+
+        self.draw_sidebar()
+
+    def draw_board(self):
+        self.surface.blit(self.board, (40, 0))
     def draw_paused(self):
         paused = pygame.Surface(G_SIZE)
         paused.fill(WHITE)
@@ -35,7 +121,15 @@ class Window(object):
 
         paused.blit(font.render("p   pause", 1, BLACK), (30, 170))
         paused.blit(font.render("q   quit", 1, BLACK), (30, 190))
-        paused.blit(font.render("s   sound", 1, BLACK), (30, 210))
+        # paused.blit(font.render("s   sound", 1, BLACK), (30, 210))
+
+        self.surface.blit(paused, (40, 0))
+    def draw_over(self):
+        paused = pygame.Surface(G_SIZE)
+        paused.fill(WHITE)
+
+        paused.blit(font.render("game", 1, BLACK), (30, 50))
+        paused.blit(font.render("over", 1, BLACK), (30, 70))
 
         self.surface.blit(paused, (40, 0))
 
@@ -45,12 +139,13 @@ class Window(object):
         self.surface.blit(bricks, (240, 0))
         pygame.draw.line(self.surface, WHITE, (18, 0), (18, 400), 3)
         pygame.draw.line(self.surface, WHITE, (261, 0), (261, 400), 3)
-    def draw_sidebar(self, (score, level, lines), next_block=None):
-        self.draw_score(score)
-        self.draw_level(level)
-        self.draw_lines(lines)
-        self.draw_queue(next_block)
+    def draw_sidebar(self):
+        self.draw_score(self.game.score)
+        self.draw_level(self.game.level.n)
+        self.draw_lines(self.game.lines)
+        self.draw_queue(self.game.next_block)
 
+    # Functions for sidebar
     def draw_score(self, score):
         # Box under score
         pygame.draw.line(self.surface, WHITE, (263, 38), (400, 38), 3)
@@ -60,25 +155,25 @@ class Window(object):
         pygame.draw.rect(self.surface, WHITE, (263, 62, 138, 24))
         pygame.draw.line(self.surface, WHITE, (263, 89), (400, 89), 3)
         # Box & title
-        self.draw_box(self.surface, (276, 16, 112, 33))
+        self.box(self.surface, (276, 16, 112, 33))
         self.surface.blit(font.render("score", 1, BLACK), (284, 21))
         # Actual score
         self.surface.blit(font.render(str(score), 1, BLACK), (self.align(score), 61))
     def draw_level(self, level):
         # Box & title
-        self.draw_box(self.surface, (276, 116, 112, 55))
+        self.box(self.surface, (276, 116, 112, 55))
         self.surface.blit(font.render("level", 1, BLACK), (284, 121))
         # Actual level
         self.surface.blit(font.render(str(level), 1, BLACK), (self.align(level), 141))
     def draw_lines(self, lines):
         # Box & title
-        self.draw_box(self.surface, (276, 176, 112, 55))
+        self.box(self.surface, (276, 176, 112, 55))
         self.surface.blit(font.render("lines", 1, BLACK), (284, 181))
         # Actual lines
         self.surface.blit(font.render(str(lines), 1, BLACK), (self.align(lines), 201))
     def draw_queue(self, next_block):
         # Box & title
-        self.draw_box(self.surface, (276, 251, 112, 112))
+        self.box(self.surface, (276, 251, 112, 112))
         self.surface.blit(font.render("queue", 1, BLACK), (284, 256))
         # Actual next block
         if next_block:
@@ -87,8 +182,8 @@ class Window(object):
                 location = map(sum, zip((x*CELL_W, y*CELL_H), (310, 316)))
                 self.surface.blit(tile.block.image, location)
 
-    # Miscellaneous
-    def draw_box(self, window, (wx, wy, ww, wh)):
+    # Helper functions
+    def box(self, window, (wx, wy, ww, wh)):
         t = 3 # 'Thickness' of the box
         bx, by = wx+t, wy+t
         bw, bh = ww-(2*t), wh-(2*t)
@@ -109,3 +204,33 @@ class Window(object):
             return x-(n-1)*20
         else:
             return x-60-(n-5)*10
+
+
+    # THE WHILE LOOP
+    def while_loop(self):
+        self.clock.tick(FPS)
+        self.board.fill(WHITE)
+
+        self.process_quit()
+        self.process_pause()
+
+        if self.state == PLAY:
+            self.play()
+
+        self.redraw()
+        pygame.display.update()
+
+    def play(self):
+        self.process_input()
+
+        self.game.block.ghost(self.game, self.board)
+
+        self.game.advance()
+
+        # Remove completed lines & Update global info
+        self.game.draw(self.board)
+        
+        # Check that the game is not over
+        self.game.check_over(self.game.block)
+
+
