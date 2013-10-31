@@ -111,6 +111,7 @@ class Game(object):
     # Game over
     def over(self):
         if not (self.block.can_move(self, DOWN)):
-            for tile in self.tiles:
-                if tile.y == 1:
-                    return OVER
+            if (self.block.hard_points) or (time.time() - self.last_event > LOCK_DELAY):
+                for tile in self.tiles:
+                    if tile.y == 1:
+                        return OVER

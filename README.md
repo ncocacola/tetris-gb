@@ -1,16 +1,16 @@
-# nitris
+# tetris-gb
 ## What is it?
 A Tetris clone written in Python, based on the [1989 Game Boy version](http://en.wikipedia.org/wiki/Tetris_%28Game_Boy%29) (my favourite).   
 This is still a work in progress, but the master branch contains a fairly useable version.
 
 ## What does it look like?
-![play](https://raw.github.com/ncocacola/nitris/master/latest_play.png)
-![pause](https://raw.github.com/ncocacola/nitris/master/latest_pause.png)
+![play](https://raw.github.com/ncocacola/tetris-gb/master/latest_play.png)
+![pause](https://raw.github.com/ncocacola/tetris-gb/master/latest_pause.png)
 
 ## How does it work?
 To run the script, open a Terminal, and type in:
 
-    $ python nitris.py
+    $ python tetris.py
 
 **Left key**: move left   
 **Right key**: move right   

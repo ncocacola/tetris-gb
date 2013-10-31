@@ -7,7 +7,7 @@ from config import *
 class Window(object):
     def __init__(self):
         # Create the window/Initialise
-        pygame.display.set_caption("nitris")
+        pygame.display.set_caption("tetris")
         self.window = pygame.display.set_mode(WINDOW_SIZE)
         self.board = pygame.Surface(BOARD_SIZE)
         self.clock = pygame.time.Clock()
